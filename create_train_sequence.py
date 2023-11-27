@@ -1,62 +1,76 @@
 import pandas as pd
-
 import random
+import argparse
+
 # 設定
 SEP = "[SEP]"
 MASK = "[MASK]"
 
-# validation.csvの読み込み
-df_valid = pd.read_csv('rec-class/dataset/training.csv')
+def generate_data(req_num, seq_num):
+    rep_num = 6
 
-# userinfo.csvの読み込み
-df_userinfo = pd.read_csv('rec-class/dataset/userinfo.csv')
+    # validation.csvの読み込み
+    df_valid = pd.read_csv('rec-class/dataset/training.csv')
 
-# 処理結果を保存するデータフレーム
-result_rows = []
+    # userinfo.csvの読み込み
+    df_userinfo = pd.read_csv('rec-class/dataset/userinfo.csv')
 
-# 3回水増しする
-for _ in range(6):
-    for index, row in df_valid.iterrows():
-        user_id = f"user_{str(int(row['userId']))}"  # ユーザーIDを整数として処理し、小数点以下があれば削除
-        user_info = df_userinfo[df_userinfo['user'] == user_id]
+    # 処理結果を保存するデータフレーム
+    result_rows = []
 
-        # user_infoが存在する場合のみ処理を行う
-        if not user_info.empty:
-            user_sentence = user_info['sentence'].values[0]
+    # rep_num回水増しする
+    for _ in range(rep_num):
+        for index, row in df_valid.iterrows():
+            user_id = f"user_{str(int(row['userId']))}"  # ユーザーIDを整数として処理し、小数点以下があれば削除
+            user_info = df_userinfo[df_userinfo['user'] == user_id]
 
-            # sentenceを"[SEP]"で分割
-            user_sequence, movie_sequence, rating_sequence = user_sentence.split(SEP)
-            movies = movie_sequence.split()
-            ratings = rating_sequence.split()
-            threshold = len(movies)
-            #k_num = int(threshold*0.6)
+            # user_infoが存在する場合のみ処理を行う
+            if not user_info.empty:
+                user_sentence = user_info['sentence'].values[0]
 
-            # 選択肢のリスト
-            choices = [5, 6, 7]
+                # sentenceを"[SEP]"で分割
+                user_sequence, movie_sequence, rating_sequence = user_sentence.split(SEP)
+                movies = movie_sequence.split()
+                ratings = rating_sequence.split()
+                threshold = len(movies)
 
-            # ランダムに1つの数を選ぶ
-            random_choice = random.choice(choices)
+                # 選択肢のリスト
+                choices = [5, 6, 7]
 
-            # ランダムにk個の整数を選ぶ
-            selected_indices = random.sample(range(threshold), 4)
-            #sorted_indices = sorted(selected_indices)
+                # ランダムに1つの数を選ぶ
+                random_choice = random.choice(choices)
 
-            # 選ばれた整数に対応する要素を取り出してリストにする
-            selected_movies = [movies[i] for i in selected_indices]
-            selected_ratings = [ratings[i] for i in selected_indices]
+                # ランダムにk個の整数を選ぶ
+                selected_indices = random.sample(range(threshold), seq_num)
+                # sorted_indices = sorted(selected_indices)
 
-            # 2つ目の"[SEP]"の前にmovieIdを入れる
-            movie_id = f"movie_{str(int(row['movieId']))}"
-            user_sequence = user_sequence + SEP + " " + ' '.join(selected_movies) + " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK
+                # 選ばれた整数に対応する要素を取り出してリストにする
+                selected_movies = [movies[i] for i in selected_indices]
+                selected_ratings = [ratings[i] for i in selected_indices]
 
-            # labelにratingを追加
-            label = row['rating']
+                # 2つ目の"[SEP]"の前にmovieIdを入れる
+                movie_id = f"movie_{str(int(row['movieId']))}"
+                user_sequence = (
+                    user_sequence + SEP + " " + ' '.join(selected_movies) +
+                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK
+                )
 
-            # 結果を保存
-            result_rows.append({'sentence': user_sequence, 'label': label})
+                # labelにratingを追加
+                label = row['rating']
 
-# 結果をデータフレームに変換
-result_df = pd.DataFrame(result_rows)
+                # 結果を保存
+                result_rows.append({'sentence': user_sequence, 'label': label})
 
-# 結果をCSVファイルに書き出し
-result_df.to_csv('rec-class/dataset/train_for_bert.csv', index=False)
+    # 結果をデータフレームに変換
+    result_df = pd.DataFrame(result_rows)
+
+    # 結果をCSVファイルに書き出し
+    result_df.to_csv('rec-class/dataset/train_for_bert.csv', index=False)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate augmented data for training a BERT model.")
+    parser.add_argument("--req_num", type=int, help="Number of repetitions", required=True)
+    parser.add_argument("--seq_num", type=int, help="Number of selected elements in each sequence", required=True)
+    args = parser.parse_args()
+
+    generate_data(args.req_num, args.seq_num)
