@@ -6,7 +6,7 @@ import argparse
 SEP = "[SEP]"
 MASK = "[MASK]"
 
-def generate_data(infile, outfile, rep_num, seq_num):
+def generate_data(infile, outfile, rep_num, seq_num, order):
     # validation.csvの読み込み
     df_valid = pd.read_csv(infile)
 
@@ -35,10 +35,14 @@ def generate_data(infile, outfile, rep_num, seq_num):
                     movies = movie_sequence.split()
                     ratings = rating_sequence.split()
                     threshold = len(movies)
-                    k_num = int(threshold * 0.6)
 
                     # ランダムにk個の整数を選ぶ
                     selected_indices = random.sample(range(threshold), seq_num)
+
+                    # 選ばれたインデックスを小さい順に並べ替える
+                    if order == "sequential":
+                        selected_indices = sorted(selected_indices)
+
 
                     # 選ばれた整数に対応する要素を取り出してリストにする
                     selected_movies = [movies[i] for i in selected_indices]
@@ -71,7 +75,6 @@ def generate_data(infile, outfile, rep_num, seq_num):
     else:
         for index, row in df_userinfo.iterrows():
             user_id = row['user'] # ユーザーIDを整数として処理し、小数点以下があれば削除
-            print(user_id)
             user_info = df_userinfo[df_userinfo['user'] == user_id]
 
             user_sentence = user_info['sentence'].values[0]
@@ -110,6 +113,7 @@ if __name__ == "__main__":
     # コマンドライン引数の定義
     parser.add_argument("--rep_num", type=int, default=1, help="Number of repetitions")
     parser.add_argument("--seq_num", type=int, default=4, help="Number of sequences")
+    parser.add_argument("--order", type=str,  default="random", help="Order of each sequence (sequential/random)")
     parser.add_argument("--infile", type=str, default="rec-class/dataset/validation.csv", help="Input CSV file path")
     parser.add_argument("--outfile", type=str, default="rec-class/dataset/validation_for_bert.csv", help="Output CSV file path")
 
@@ -117,7 +121,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # メイン関数の呼び出し
-    generate_data(args.infile, args.outfile, args.rep_num, args.seq_num)
+    generate_data(args.infile, args.outfile, args.rep_num, args.seq_num, args.order)
 
 # import pandas as pd
 
