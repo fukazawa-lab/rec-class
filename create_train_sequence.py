@@ -9,7 +9,10 @@ MASK = "[MASK]"
 def generate_data(infile, outfile, rep_num, seq_num):
 
     # validation.csvの読み込み
-    df_valid = pd.read_csv('rec-class/dataset/training.csv')
+    df_valid = pd.read_csv(infile)
+
+    # metadata.csvの読み込み
+    metadata = pd.read_csv('rec-class/dataset/metadata.csv')
 
     # userinfo.csvの読み込み
     df_userinfo = pd.read_csv('rec-class/dataset/userinfo.csv')
@@ -41,17 +44,25 @@ def generate_data(infile, outfile, rep_num, seq_num):
 
                 # ランダムにk個の整数を選ぶ
                 selected_indices = random.sample(range(threshold), seq_num)
-                # sorted_indices = sorted(selected_indices)
 
                 # 選ばれた整数に対応する要素を取り出してリストにする
                 selected_movies = [movies[i] for i in selected_indices]
                 selected_ratings = [ratings[i] for i in selected_indices]
 
+                # movieIdに対応するdescriptionを取得し、連結する
+                selected_descriptions = []
+                for movie_id in selected_movies:
+                    description = metadata[metadata['movieId'] == int(movie_id.split("_")[1])]['description'].values[0]
+                    selected_descriptions.append(description)
+
+                # descriptionを"."で連結
+                movie_description_sequence = ". ".join(selected_descriptions)
+
                 # 2つ目の"[SEP]"の前にmovieIdを入れる
                 movie_id = f"movie_{str(int(row['movieId']))}"
                 user_sequence = (
                     user_sequence + SEP + " " + ' '.join(selected_movies) +
-                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK
+                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK + SEP +movie_description_sequence
                 )
 
                 # labelにratingを追加
@@ -64,7 +75,7 @@ def generate_data(infile, outfile, rep_num, seq_num):
     result_df = pd.DataFrame(result_rows)
 
     # 結果をCSVファイルに書き出し
-    result_df.to_csv('rec-class/dataset/train_for_bert.csv', index=False)
+    result_df.to_csv(outfile, index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate augmented data for training a BERT model.")
