@@ -53,8 +53,8 @@ print("乱数シード設定完了")
 from sklearn.preprocessing import MinMaxScaler
 
 # CSVファイルからデータを読み込む
-original_train_df = pd.read_csv('/content/llm-class/dataset/train_for_bert.csv')
-valid_df = pd.read_csv('/content/llm-class/dataset/validation_for_bert.csv')
+original_train_df = pd.read_csv('rec-class/dataset/train_for_bert.csv')
+valid_df = pd.read_csv('rec-class/dataset/validation_for_bert.csv')
 
 # ラベルの正規化用にMinMaxScalerを作成
 scaler = MinMaxScaler()
@@ -229,7 +229,7 @@ predictions_df_2 = pd.DataFrame({
 })
 
 # 予測結果をCSVに保存
-predictions_df_2.to_csv("/content/llm-class/results/regression/results_lmm.csv", index=False)
+predictions_df_2.to_csv("rec-class/dataset/results_lmm.csv", index=False)
 
 mse_original_scale = mean_squared_error(original_label, original_predicted_labels)
 mae_original_scale = mean_absolute_error(original_label, original_predicted_labels)
@@ -241,15 +241,13 @@ print("MAE:", mae_original_scale)
 print("RMSE:", rmse_original_scale)
 
 # Save the best model
-trainer.save_model("output_wrime/best_model")
-
-
+trainer.save_model("rec-class/best_model")
 
 # Load the best model for prediction
-best_model = AutoModelForSequenceClassification.from_pretrained("output_wrime/best_model").to(device)
+best_model = AutoModelForSequenceClassification.from_pretrained("rec-class/best_model").to(device)
 
 # Load the test dataset
-test_df = pd.read_csv('/content/llm-class/dataset/test.csv')
+test_df = pd.read_csv('rec-class/dataset/test.csv')
 test_dataset = Dataset.from_pandas(test_df)
 
 # Tokenize the test dataset
@@ -275,6 +273,7 @@ submission_df = pd.DataFrame({
 submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split("_")[1].strip() + "_" + text.split("[SEP]")[1].split(" ")[-2].split("_")[1].strip())
 
 # 結果を保存
-submission_df.to_csv("/content/llm-class/results/regression/submission.csv", index=False)
+submission_df.to_csv("rec-class/dataset/submission.csv", index=False)
+print("提出用ファイル作成完了しました。submission.csvをダウンロードしてKaggleに登録ください。")
 
 
