@@ -6,8 +6,7 @@ import argparse
 SEP = "[SEP]"
 MASK = "[MASK]"
 
-def generate_data(req_num, seq_num):
-    rep_num = 6
+def generate_data(infile, outfile, rep_num, seq_num):
 
     # validation.csvの読み込み
     df_valid = pd.read_csv('rec-class/dataset/training.csv')
@@ -69,8 +68,13 @@ def generate_data(req_num, seq_num):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate augmented data for training a BERT model.")
-    parser.add_argument("--req_num", type=int, help="Number of repetitions", required=True)
+    parser.add_argument("--rep_num", type=int, help="Number of repetitions", required=True)
     parser.add_argument("--seq_num", type=int, help="Number of selected elements in each sequence", required=True)
+    parser.add_argument("--infile", type=str, default="rec-class/dataset/validation.csv", help="Input CSV file path")
+    parser.add_argument("--outfile", type=str, default="rec-class/dataset/validation_for_bert.csv", help="Output CSV file path")
+
+    # コマンドライン引数をパース
     args = parser.parse_args()
 
-    generate_data(args.req_num, args.seq_num)
+    # メイン関数の呼び出し
+    generate_data(args.infile, args.outfile, args.rep_num, args.seq_num)
