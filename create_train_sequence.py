@@ -94,7 +94,7 @@ def generate_data(infile, outfile, rep_num, seq_num):
 
               # Create the sentence for the current movie
               sentence = user_sequence + SEP + " " + ' '.join(movies) + " " + SEP + " " + ' '.join(masked_ratings)
-              print(sentence)
+
               # 結果を保存
               result_rows.append({'sentence': sentence, 'label': label})
 
