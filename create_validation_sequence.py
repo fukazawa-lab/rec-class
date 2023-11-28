@@ -12,6 +12,8 @@ def generate_data(infile, outfile, rep_num, seq_num):
 
     # userinfo.csvの読み込み
     df_userinfo = pd.read_csv('rec-class/dataset/userinfo.csv')
+    # metadata.csvの読み込み
+    metadata = pd.read_csv('rec-class/dataset/metadata.csv')
 
     # 処理結果を保存するデータフレーム
     result_rows = []
@@ -40,11 +42,20 @@ def generate_data(infile, outfile, rep_num, seq_num):
                 selected_movies = [movies[i] for i in selected_indices]
                 selected_ratings = [ratings[i] for i in selected_indices]
 
+                # movieIdに対応するdescriptionを取得し、連結する
+                selected_descriptions = []
+                for movie_id in selected_movies:
+                    description = metadata[metadata['movieId'] == int(movie_id.split("_")[1])]['description'].values[0]
+                    selected_descriptions.append(description)
+
+                # descriptionを"."で連結
+                movie_description_sequence = ". ".join(selected_descriptions)
+
                 # 2つ目の"[SEP]"の前にmovieIdを入れる
                 movie_id = f"movie_{str(int(row['movieId']))}"
                 user_sequence = (
-                    user_sequence + SEP + " " + ' '.join(selected_movies) + " " +
-                    movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK
+                    user_sequence + SEP + " " + ' '.join(selected_movies) +
+                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK + SEP +movie_description_sequence
                 )
 
                 # labelにratingを追加
