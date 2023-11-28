@@ -114,7 +114,7 @@ def preprocess_text_classification(
     encoded_example = tokenizer(example["sentence"], max_length=512)
     # 各IDがどのトークンを表すかを表示
     input_tokens = tokenizer.convert_ids_to_tokens(encoded_example["input_ids"])
-    print("Input Tokens:", input_tokens)
+    #print("Input Tokens:", input_tokens)
     # モデルの入力引数である"labels"をキーとして格納する
     encoded_example["labels"] = float(example["label"])  # ラベルをFloat型に変換
     return encoded_example
@@ -247,7 +247,7 @@ trainer.save_model("rec-class/best_model")
 best_model = AutoModelForSequenceClassification.from_pretrained("rec-class/best_model").to(device)
 
 # Load the test dataset
-test_df = pd.read_csv('rec-class/dataset/test.csv')
+test_df = pd.read_csv('rec-class/dataset/test_for_bert.csv')
 test_dataset = Dataset.from_pandas(test_df)
 
 # Tokenize the test dataset
@@ -272,8 +272,11 @@ submission_df = pd.DataFrame({
 # 処理と新しい列の作成
 submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split("_")[1].strip() + "_" + text.split("[SEP]")[1].split(" ")[-2].split("_")[1].strip())
 
+# userId_movieIdごとにratingの平均値を計算
+average_ratings = submission_df.groupby('userId_movieId')['rating'].mean().reset_index()
+
 # 結果を保存
-submission_df.to_csv("rec-class/dataset/submission.csv", index=False)
+average_ratings.to_csv("rec-class/dataset/submission.csv", index=False)
 print("提出用ファイル作成完了しました。submission.csvをダウンロードしてKaggleに登録ください。")
 
 
