@@ -64,7 +64,7 @@ def generate_data(infile, outfile, rep_num, seq_num, order):
                     user_sequence = (
                         user_sequence + SEP + " " + ' '.join(selected_movies) +
                         " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK +
-                        SEP +movie_description_sequence 
+                      SEP +movie_description_sequence +". "+target_movie_description
                     )
 
                     # labelにratingを追加
@@ -84,6 +84,15 @@ def generate_data(infile, outfile, rep_num, seq_num, order):
             user_sequence, movie_sequence, rating_sequence = user_sentence.split(SEP)
             movies = movie_sequence.split()
             ratings = rating_sequence.split()
+            
+            # movieIdに対応するdescriptionを取得し、連結する
+            selected_descriptions = []
+            for movie_id in movies:
+                description = metadata[metadata['movieId'] == int(movie_id.split("_")[1])]['description'].values[0]
+                selected_descriptions.append(description)
+
+            # descriptionを"."で連結
+            movie_description_sequence = ". ".join(selected_descriptions)
 
             for i in range(len(movies)):
               # Create a copy of the ratings list to avoid modifying the original list
@@ -95,7 +104,7 @@ def generate_data(infile, outfile, rep_num, seq_num, order):
               masked_ratings[i] = "[MASK]"
 
               # Create the sentence for the current movie
-              sentence = user_sequence + SEP + " " + ' '.join(movies) + " " + SEP + " " + ' '.join(masked_ratings)
+              sentence = user_sequence + SEP + " " + ' '.join(movies) + " " + SEP + " " + ' '.join(masked_ratings) + " " + SEP + " " +movie_description_sequence 
 
               # 結果を保存
               result_rows.append({'sentence': sentence, 'label': label})
