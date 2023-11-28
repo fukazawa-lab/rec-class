@@ -63,7 +63,7 @@ def main(kmeans_flag, num_clusters):
     # Dummy encode 'userId' in test data
     test_data = pd.get_dummies(test_original_data, columns=['userId'], prefix='user')
 
-    # 訓練データと検証データをメタデータで結合
+    # 訓練データとメタデータを結合
     test_data = pd.merge(test_data, metadata, on='movieId', how='left')
 
     # Apply TF-IDF transformation to 'movieText' in test data
