@@ -60,9 +60,12 @@ def generate_data(infile, outfile, rep_num, seq_num):
 
                 # 2つ目の"[SEP]"の前にmovieIdを入れる
                 movie_id = f"movie_{str(int(row['movieId']))}"
+                target_movie_description = metadata[metadata['movieId'] == int(row['movieId'])]['description'].values[0]
+
                 user_sequence = (
                     user_sequence + SEP + " " + ' '.join(selected_movies) +
-                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK + SEP +movie_description_sequence
+                    " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK +
+                     SEP +movie_description_sequence + " " +SEP + " " +target_movie_description + " " 
                 )
 
                 # labelにratingを追加
