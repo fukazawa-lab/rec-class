@@ -65,7 +65,7 @@ def generate_data(infile, outfile, rep_num, seq_num):
                 user_sequence = (
                     user_sequence + SEP + " " + ' '.join(selected_movies) +
                     " " + movie_id + " " + SEP + " " + ' '.join(selected_ratings) + " " + MASK +
-                     SEP +movie_description_sequence + " " +SEP + " " +target_movie_description + " " 
+                     SEP +movie_description_sequence  
                 )
 
                 # labelにratingを追加
