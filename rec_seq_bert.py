@@ -92,17 +92,16 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 print(type(tokenizer).__name__)
 
 # UserID、MovieIDを別れないようにトークンを登録する。
-user_tokens = [f"user_{i}" for i in range(1, 101)]
-tokenizer.add_tokens(user_tokens)
-movie_tokens = [f"movie_{i}" for i in range(1, 1001)]
-tokenizer.add_tokens(movie_tokens)
-rating_tokens = [str(round(x, 1)) for x in np.arange(1.0, 5.1, 0.1)]
-tokenizer.add_tokens(rating_tokens)
+# user_tokens = [f"user_{i}" for i in range(1, 101)]
+# tokenizer.add_tokens(user_tokens)
+# movie_tokens = [f"movie_{i}" for i in range(1, 1001)]
+# tokenizer.add_tokens(movie_tokens)
+# rating_tokens = [str(round(x, 1)) for x in np.arange(1.0, 5.1, 0.1)]
+# tokenizer.add_tokens(rating_tokens)
 
 
 # テキストのトークン化
-# tokens = tokenizer.tokenize(train_dataset[0]['sentence'])
-tokens =train_dataset[0]['sentence'].split()
+tokens = tokenizer.tokenize(train_dataset[0]['sentence'])
 print(tokens)
 
 # データのトークン化
