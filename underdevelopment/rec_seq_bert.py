@@ -270,7 +270,8 @@ submission_df = pd.DataFrame({
 
 # 処理と新しい列の作成
 #submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split("_")[1].strip() + "_" + text.split("[SEP]")[1].split(" ")[-2].split("_")[1].strip())
-submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split(" ")[1].split("_")[1].strip() + "_" + text.split("[SEP]")[2].split(" ")[1].split("_")[1].strip())
+# submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split(" ")[1].split("_")[1].strip() + "_" + text.split("[SEP]")[2].split(" ")[1].split("_")[1].strip())
+submission_df["userId_movieId"] = submission_df["userId_movieId"].apply(lambda text: text.split("[SEP]")[0].split(" ")[1].split("_")[1].strip() + "_" + text.split("[SEP]")[1].split(" ")[1].split("_")[1].strip())
 
 
 # userId_movieIdごとにratingの平均値を計算
