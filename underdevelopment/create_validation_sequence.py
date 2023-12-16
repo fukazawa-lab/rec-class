@@ -68,10 +68,12 @@ def generate_data(infile, outfile, rep_num, seq_num, order):
                     # )
                     result = ""
                     for movie, rating in zip(selected_movies, selected_ratings):
-                        # result += f"{movie} "
-                        result += f"{movie} {rating} "
+                      # result += f"{movie} {rating} "
+                      rating = float(rating)
+                      result += user_sequence + "evaluated " + f" {movie} {' to be excellent (' if rating == 5 else ' to be very good (' if rating >= 4 else ' to be average (' if rating >= 2 else ' to be poor ('} {rating} {').'}"
 
-                    user_sequence = user_sequence+ SEP + " "+ result+" " + SEP +" "+ movie_id +" "+ MASK+ " " + SEP  + " " + movie_description_sequence+" "+ target_movie_description 
+                    # user_sequence = user_sequence+ SEP + " "+ result+" " + SEP +" "+ movie_id +" "+ MASK+ " " + SEP  + " " + movie_description_sequence+" "+ target_movie_description 
+                    user_sequence = result+" " + SEP + user_sequence + "evaluated " + movie_id +" ( "+ MASK+ " ) "  
 
                     # labelにratingを追加
                     label = row['rating']
