@@ -110,7 +110,7 @@ def preprocess_text_classification(
     example: dict[str, str | int]
 ) -> BatchEncoding:
     """文書分類の事例のテキストをトークナイズし、IDに変換"""
-    encoded_example = tokenizer(example["sentence"], max_length=512)
+    encoded_example = tokenizer(example["sentence"].replace("[SEP]",""), max_length=512)
     # 各IDがどのトークンを表すかを表示
     input_tokens = tokenizer.convert_ids_to_tokens(encoded_example["input_ids"])
     #print("Input Tokens:", input_tokens)
