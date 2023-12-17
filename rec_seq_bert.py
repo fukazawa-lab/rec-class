@@ -169,12 +169,12 @@ training_args = TrainingArguments(
     learning_rate=2e-5,  # 学習率
     lr_scheduler_type="linear",  # 学習率スケジューラの種類
     warmup_ratio=0.1,  # 学習率のウォームアップの長さを指定
-    num_train_epochs=4,  # エポック数
+    num_train_epochs=3,  # エポック数
     save_strategy="epoch",  # チェックポイントの保存タイミング
     logging_strategy="epoch",  # ロギングのタイミング
     evaluation_strategy="epoch",  # 検証セットによる評価のタイミング
     load_best_model_at_end=True,  # 訓練後に開発セットで最良のモデルをロード
-    metric_for_best_model="1/mse",  # 最良のモデルを決定する評価指標
+    metric_for_best_model="1/rmse",  # 最良のモデルを決定する評価指標
     fp16=False,  # 修正: FP16を無効にする
     fp16_full_eval=False,  # 修正: FP16 full evalを無効にする
 )
@@ -182,17 +182,17 @@ training_args = TrainingArguments(
 def compute_metrics_for_regression(eval_pred):
     logits, labels = eval_pred
     labels = labels.reshape(-1, 1)
-    
     mse = mean_squared_error(labels, logits)
     mae = mean_absolute_error(labels, logits)
     r2 = r2_score(labels, logits)
     single_squared_errors = ((logits - labels).flatten()**2).tolist()
-    
+    rmse = mean_squared_error(labels, logits, squared=False)
+
     # Compute accuracy 
     # Based on the fact that the rounded score = true score only if |single_squared_errors| < 0.5
-    accuracy = 1/mse
+    accuracy = 1/rmse
     
-    return {"mse": mse, "mae": mae, "r2": r2, "1/mse": accuracy}
+    return {"mse": mse, "mae": mae, "r2": r2, "1/rmse": accuracy}
 
 trainer = Trainer(
     model=model,
