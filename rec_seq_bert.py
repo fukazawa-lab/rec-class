@@ -82,11 +82,11 @@ print("")
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 
-# model_name = "bert-base-uncased"
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-model_name = "albert-base-v2"
+model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# model_name = "albert-base-v2"
+# tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # トークナイザのクラス名を確認
 print(type(tokenizer).__name__)
