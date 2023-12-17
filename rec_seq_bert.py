@@ -82,11 +82,11 @@ print("")
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 
-model_name = "bert-base-uncased"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# model_name = "albert-base-v2"
+# model_name = "bert-base-uncased"
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+model_name = "albert-base-v2"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # トークナイザのクラス名を確認
 print(type(tokenizer).__name__)
@@ -169,7 +169,7 @@ training_args = TrainingArguments(
     learning_rate=2e-5,  # 学習率
     lr_scheduler_type="linear",  # 学習率スケジューラの種類
     warmup_ratio=0.1,  # 学習率のウォームアップの長さを指定
-    num_train_epochs=3,  # エポック数
+    num_train_epochs=4,  # エポック数
     save_strategy="epoch",  # チェックポイントの保存タイミング
     logging_strategy="epoch",  # ロギングのタイミング
     evaluation_strategy="epoch",  # 検証セットによる評価のタイミング
