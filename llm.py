@@ -53,8 +53,8 @@ print("乱数シード設定完了")
 from sklearn.preprocessing import MinMaxScaler
 
 # CSVファイルからデータを読み込む
-original_train_df = pd.read_csv('/content/llm-class/dataset/train.csv')
-valid_df = pd.read_csv('/content/llm-class/dataset/validation.csv')
+original_train_df = pd.read_csv('/content/rec-class/dataset/train.csv')
+valid_df = pd.read_csv('/content/rec-class/dataset/validation.csv')
 
 # ラベルの正規化用にMinMaxScalerを作成
 scaler = MinMaxScaler()
@@ -231,7 +231,7 @@ predictions_df_2 = pd.DataFrame({
 })
 
 # 予測結果をCSVに保存
-predictions_df_2.to_csv("/content/llm-class/results/regression/results_lmm.csv", index=False)
+predictions_df_2.to_csv("/content/rec-class/dataset/results_lmm.csv", index=False)
 
 mse_original_scale = mean_squared_error(original_label, original_predicted_labels)
 mae_original_scale = mean_absolute_error(original_label, original_predicted_labels)
@@ -273,6 +273,6 @@ test_predictions_df = pd.DataFrame({
 })
 
 # 予測結果をsubmission.csvとして保存
-test_predictions_df.to_csv("/content/llm-class/results/regression/submission.csv", index=False)
+test_predictions_df.to_csv("/content/rec-class/dataset/submission.csv", index=False)
 
-print("Submission file saved to /content/llm-class/results/regression/submission.csv")
+print("Submission file saved to /content/rec-class/dataset/submission.csv")
