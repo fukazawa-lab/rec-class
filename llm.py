@@ -53,8 +53,8 @@ print("乱数シード設定完了")
 from sklearn.preprocessing import MinMaxScaler
 
 # CSVファイルからデータを読み込む
-original_train_df = pd.read_csv('/content/rec-class/dataset/train.csv')
-valid_df = pd.read_csv('/content/rec-class/dataset/validation.csv')
+original_train_df = pd.read_csv('/content/rec-class/dataset/training_bert.csv')
+valid_df = pd.read_csv('/content/rec-class/dataset/validation_bert.csv')
 
 # ラベルの正規化用にMinMaxScalerを作成
 scaler = MinMaxScaler()
@@ -247,7 +247,7 @@ print("RMSE:", rmse_original_scale)
 """# 7 テストデータの予測"""
 
 # テストデータの読み込み
-test_df = pd.read_csv('/content/rec-class/dataset/test.csv')
+test_df = pd.read_csv('/content/rec-class/dataset/test_bert.csv')
 
 # テストデータのトークン化（ラベルは仮に0が入っているため無視）
 def preprocess_test_text_classification(example: dict[str, str | int]) -> BatchEncoding:
