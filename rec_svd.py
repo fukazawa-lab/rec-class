@@ -11,6 +11,7 @@ def train_svd(training_file, validation_file, test_file, epochs, n_factors, lr):
     # データの読み込み
     training_data = pd.read_csv(training_file)
     validation_data = pd.read_csv(validation_file)
+    test_data = pd.read_csv(test_file)
 
     # モデルのトレーニング
     training_data = Dataset.load_from_df(training_data[['userId', 'movieId', 'rating']], reader)
@@ -22,31 +23,32 @@ def train_svd(training_file, validation_file, test_file, epochs, n_factors, lr):
     # 検証データに対する予測
     validation_data = Dataset.load_from_df(validation_data[['userId', 'movieId', 'rating']], reader)
     validation_set = validation_data.build_full_trainset().build_testset()
-    predictions = model.test(validation_set)
+    validation_predictions = model.test(validation_set)
 
     # RMSEの計算
-    rmse = sqrt(mean_squared_error([prediction.est for prediction in predictions], [prediction.r_ui for prediction in predictions]))
+    validation_rmse = sqrt(mean_squared_error([prediction.est for prediction in validation_predictions], [prediction.r_ui for prediction in validation_predictions]))
+    print(f"Validation RMSE: {validation_rmse}")
 
-    # 結果の表示
-    print(f"Validation RMSE: {rmse}")
+    # 検証データの予測結果をDataFrameに変換
+    validation_df = pd.DataFrame(validation_predictions, columns=['userId', 'movieId', 'true_rating', 'rating', 'details'])
+    validation_df = validation_df[['userId', 'movieId', 'true_rating', 'rating']]
+    validation_df['userId_movieId'] = validation_df['userId'].astype(str) + '_' + validation_df['movieId'].astype(str)
+    validation_output = validation_df[['userId_movieId', 'true_rating', 'rating']]
+    validation_output.to_csv('rec-class/dataset/validation_predictions.csv', index=False)
+    print("検証データの予測結果をvalidation_predictions.csvに保存しました。")
 
     # テストデータに対する予測
-    test_data = pd.read_csv(test_file)
     test_data = Dataset.load_from_df(test_data[['userId', 'movieId', 'rating']], reader)
     test_set = test_data.build_full_trainset().build_testset()
-    predictions = model.test(test_set)
+    test_predictions = model.test(test_set)
 
-    # 予測結果を DataFrame に変換
-    submission_df = pd.DataFrame(predictions, columns=['userId', 'movieId', 'true_rating', 'rating', 'details'])
-    submission_df = submission_df[['userId', 'movieId', 'rating']]
-
-    # userIdとmovieIdを結合して新しい列uid_iidを作成
-    submission_df['userId_movieId'] = submission_df['userId'].astype(str) + '_' + submission_df['movieId'].astype(str)
-
-    # 必要な列だけを抽出して出力
-    output_data = submission_df[['userId_movieId', 'rating']]
-    output_data.to_csv('rec-class/dataset/submission.csv', index=False)
-    print("提出用ファイル作成完了しました。submission.csvをダウンロードしてKaggleに登録ください。")
+    # テストデータの予測結果をDataFrameに変換
+    test_df = pd.DataFrame(test_predictions, columns=['userId', 'movieId', 'true_rating', 'rating', 'details'])
+    test_df = test_df[['userId', 'movieId', 'true_rating', 'rating']]
+    test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['movieId'].astype(str)
+    test_output = test_df[['userId_movieId', 'true_rating', 'rating']]
+    test_output.to_csv('rec-class/dataset/test_predictions.csv', index=False)
+    print("テストデータの予測結果をtest_predictions.csvに保存しました。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the recommendation system script.")
