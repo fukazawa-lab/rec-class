@@ -25,30 +25,13 @@ import pandas as pd
 from typing import Union
 from transformers import BatchEncoding
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-from sklearn.metrics import mean_squared_error, r2_score, mean_squared_error, mean_absolute_error
+from sklearn.metrics import r2_score
 
 # 乱数シードを42に固定
 set_seed(42)
 print("乱数シード設定完了")
 
 """# 2 データセットの準備"""
-
-# Hugging Face Hub上のllm-book/wrime-sentimentのリポジトリからデータを読み込む
-# original_train_dataset = load_dataset("llm-book/wrime-sentiment", split="train")
-# valid_dataset = load_dataset("llm-book/wrime-sentiment", split="validation")
-
-# original_train_dataset = load_dataset("shunk031/JGLUE", name="MARC-ja", split="train")
-# valid_dataset = load_dataset("shunk031/JGLUE", name="MARC-ja", split="validation")
-
-# 学習データからN個のデータだけを抽出
-# train_dataset = original_train_dataset.shuffle(seed=42).select([i for i in range(1000)])
-
-# # CSVファイルからデータを読み込む
-# original_train_df = pd.read_csv('/content/llm-class/dataset/train.csv')
-# valid_df = pd.read_csv('/content/llm-class/dataset/validation.csv')
-# train_dataset = Dataset.from_pandas(original_train_df)
-# valid_dataset = Dataset.from_pandas(valid_df)
-
 
 from sklearn.preprocessing import MinMaxScaler
 
@@ -69,58 +52,30 @@ valid_df['label'] = scaler.transform(valid_df[['label']])
 train_dataset = Dataset.from_pandas(original_train_df)
 valid_dataset = Dataset.from_pandas(valid_df)
 
-
 # pprintで見やすく表示する
 pprint(train_dataset[0])
-
 print("")
 
 """# 3. トークン化"""
 
 # モデル名を指定してトークナイザを読み込む
-# model_name = "cl-tohoku/bert-base-japanese-v3"
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-# model_name = "albert-base-v2"
-# tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# トークナイザのクラス名を確認
+# トークン化のクラス名を確認
 print(type(tokenizer).__name__)
-
-# # UserID、MovieIDを別れないようにトークンを登録する。
-# user_tokens = [f"user_{i}" for i in range(1, 101)]
-# tokenizer.add_tokens(user_tokens)
-# movie_tokens = [f"movie_{i}" for i in range(1, 1001)]
-# tokenizer.add_tokens(movie_tokens)
-# rating_tokens = [str(round(x, 1)) for x in np.arange(1.0, 5.1, 0.1)]
-# tokenizer.add_tokens(rating_tokens)
-
 
 # テキストのトークン化
 tokens = tokenizer.tokenize(train_dataset[0]['sentence'])
-# tokens =train_dataset[0]['sentence'].split()
 print(tokens)
 
 # データのトークン化
-
-def preprocess_text_classification(
-    example: dict[str, str | int]
-) -> BatchEncoding:
+def preprocess_text_classification(example: dict[str, str | int]) -> BatchEncoding:
     """文書分類の事例のテキストをトークナイズし、IDに変換"""
-    # print(example["sentence"])
     encoded_example = tokenizer(example["sentence"], max_length=512)
-    # print(encoded_example)
-    # 各IDがどのトークンを表すかを表示
     input_tokens = tokenizer.convert_ids_to_tokens(encoded_example["input_ids"])
-    # print("Input Tokens:", input_tokens)
-    # モデルの入力引数である"labels"をキーとして格納する
     encoded_example["labels"] = float(example["label"])  # ラベルをFloat型に変換
     return encoded_example
-
 
 encoded_train_dataset = train_dataset.map(
     preprocess_text_classification,
@@ -138,7 +93,6 @@ print(encoded_train_dataset[0])
 
 from transformers import DataCollatorWithPadding
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-# ミニバッチ結果の確認
 batch_inputs = data_collator(encoded_train_dataset[0:4])
 pprint({name: tensor.size() for name, tensor in batch_inputs.items()})
 
@@ -147,7 +101,6 @@ pprint({name: tensor.size() for name, tensor in batch_inputs.items()})
 from transformers import AutoModelForSequenceClassification
 from collections import Counter
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 num_labels = 1
 
@@ -155,11 +108,7 @@ model = (AutoModelForSequenceClassification
     .from_pretrained(model_name, num_labels=1)
     .to(device))
 
-
-# モデルの埋め込み層にも新しいトークンを追加
 model.resize_token_embeddings(len(tokenizer))
-
-
 
 """# 6 訓練の実行"""
 
@@ -192,8 +141,7 @@ def compute_metrics_for_regression(eval_pred):
     single_squared_errors = ((logits - labels).flatten()**2).tolist()
     
     # Compute accuracy 
-    # Based on the fact that the rounded score = true score only if |single_squared_errors| < 0.5
-    accuracy = 1/mse
+    accuracy = 1 / mse
     
     return {"mse": mse, "mae": mae, "r2": r2, "1/mse": accuracy}
 
@@ -231,7 +179,7 @@ predictions_df_2 = pd.DataFrame({
 })
 
 # 予測結果をCSVに保存
-predictions_df_2.to_csv("/content/rec-class/dataset/results_lmm.csv", index=False)
+predictions_df_2.to_csv("/content/rec-class/dataset/validation_predictions_llm.csv", index=False)
 
 mse_original_scale = mean_squared_error(original_label, original_predicted_labels)
 mae_original_scale = mean_absolute_error(original_label, original_predicted_labels)
@@ -241,8 +189,6 @@ rmse_original_scale = np.sqrt(mse_original_scale)
 print("MSE:", mse_original_scale)
 print("MAE:", mae_original_scale)
 print("RMSE:", rmse_original_scale)
-
-
 
 """# 7 テストデータの予測"""
 
@@ -269,10 +215,10 @@ original_test_predictions = scaler.inverse_transform(test_predictions.prediction
 # テストデータの予測値を保存
 test_predictions_df = pd.DataFrame({
     'userId_movieId': test_df["userId_movieId"],
-    'rating': original_test_predictions.flatten()
+    'predicted_rating': original_test_predictions.flatten()
 })
 
-# 予測結果をsubmission.csvとして保存
-test_predictions_df.to_csv("/content/rec-class/dataset/submission.csv", index=False)
+# 予測結果をCSVに保存
+test_predictions_df.to_csv("/content/rec-class/dataset/test_predictions_llm.csv", index=False)
 
-print("Submission file saved to /content/rec-class/dataset/submission.csv")
+print("テストデータの予測結果をtest_predictions_llm.csvに保存しました。")
