@@ -162,6 +162,7 @@ predictions = trainer.predict(encoded_valid_dataset)
 
 # 通常は0番目のラベルに対応する予測値
 predictions_df = pd.DataFrame({
+    'userId_movieId': valid_df["userId_movieId"],
     'label': valid_dataset["label"],
     'sentence': valid_dataset["sentence"],
     'predicted_value': predictions.predictions.flatten()
@@ -173,6 +174,7 @@ original_predicted_labels = scaler.inverse_transform(predictions_df[['predicted_
 
 # 通常は0番目のラベルに対応する予測値
 predictions_df_2 = pd.DataFrame({
+    'userId_movieId': valid_df["userId_movieId"],
     'label': original_label.flatten(),
     'sentence': valid_dataset["sentence"],
     'predicted_value': original_predicted_labels.flatten()
