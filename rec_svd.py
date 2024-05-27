@@ -34,8 +34,8 @@ def train_svd(training_file, validation_file, test_file, epochs, n_factors, lr):
     validation_df = validation_df[['userId', 'movieId', 'true_rating', 'rating']]
     validation_df['userId_movieId'] = validation_df['userId'].astype(str) + '_' + validation_df['movieId'].astype(str)
     validation_output = validation_df[['userId_movieId', 'true_rating', 'rating']]
-    validation_output.to_csv('rec-class/dataset/validation_predictions.csv', index=False)
-    print("検証データの予測結果をvalidation_predictions.csvに保存しました。")
+    validation_output.to_csv('rec-class/dataset/validation_predictions_svd.csv', index=False)
+    print("検証データの予測結果をvalidation_predictions_svd.csvに保存しました。")
 
     # テストデータに対する予測
     test_data = Dataset.load_from_df(test_data[['userId', 'movieId', 'rating']], reader)
@@ -47,8 +47,8 @@ def train_svd(training_file, validation_file, test_file, epochs, n_factors, lr):
     test_df = test_df[['userId', 'movieId', 'true_rating', 'rating']]
     test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['movieId'].astype(str)
     test_output = test_df[['userId_movieId',  'rating']]
-    test_output.to_csv('rec-class/dataset/test_predictions.csv', index=False)
-    print("テストデータの予測結果をtest_predictions.csvに保存しました。")
+    test_output.to_csv('rec-class/dataset/submission_svd.csv', index=False)
+    print("提出用ファイル作成完了しました。submission_svd.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the recommendation system script.")
