@@ -46,7 +46,7 @@ def train_svd(training_file, validation_file, test_file, epochs, n_factors, lr):
     test_df = pd.DataFrame(test_predictions, columns=['userId', 'movieId', 'true_rating', 'rating', 'details'])
     test_df = test_df[['userId', 'movieId', 'true_rating', 'rating']]
     test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['movieId'].astype(str)
-    test_output = test_df[['userId_movieId', 'true_rating', 'rating']]
+    test_output = test_df[['userId_movieId',  'rating']]
     test_output.to_csv('rec-class/dataset/test_predictions.csv', index=False)
     print("テストデータの予測結果をtest_predictions.csvに保存しました。")
 
