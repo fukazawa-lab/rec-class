@@ -9,19 +9,24 @@ def calculate_rmse(file_svd, file_cbf):
     validation_predictions_cbf = pd.read_csv(file_cbf)
 
     validation_predictions_cbf.rename(columns={'rating': 'rating_cbf'}, inplace=True)
-    validation_predictions_svd.rename(columns={'rating': 'rating_svd'}, inplace()
+    validation_predictions_svd.rename(columns={'rating': 'rating_svd'}, inplace=True)
 
     # userId_movieIdでデータを突き合わせる
     merged_df = pd.merge(validation_predictions_svd, validation_predictions_cbf, on='userId_movieId')
+
+    # true_ratingのカラムが存在するかチェックし、存在しない場合はtrue_rating_xを使用
+    if 'true_rating' in merged_df.columns:
+        true_ratings = merged_df['true_rating']
+    elif 'true_rating_x' in merged_df.columns:
+        true_ratings = merged_df['true_rating_x']
+    else:
+        raise KeyError("Neither 'true_rating' nor 'true_rating_x' columns are present in the merged dataframe.")
 
     # αを0から1まで0.1刻みで変化させる
     alphas = np.arange(0, 1.1, 0.1)
 
     # RMSEを格納するリスト
     rmses = []
-
-    # true_ratingを抽出
-    true_ratings = merged_df['true_rating']
 
     # 各αに対して重みづけ和を計算し、RMSEを算出
     for alpha in alphas:
