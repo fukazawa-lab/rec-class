@@ -66,7 +66,7 @@ def main(kmeans_flag, num_clusters):
     validation_output['userId_movieId'] = validation_output['userId'].astype(str) + '_' + validation_output['movieId'].astype(str)
 
     # 必要な列だけを抽出して出力
-    validation_output_final = validation_output[['userId_movieId', 'rating']]
+    validation_output_final = validation_output[['userId_movieId', 'true_rating', 'rating']]
     validation_output_final.to_csv('rec-class/dataset/validation_predictions_tfidf.csv', index=False)
     print("検証結果をvalidation_predictions_tfidf.csvに保存しました。")
 
