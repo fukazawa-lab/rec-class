@@ -224,7 +224,7 @@ def main(epoch_num, model_name):
     # 予測結果をCSVに保存
     test_predictions_df.to_csv("/content/rec-class/dataset/submission_llm.csv", index=False)
 
-    print("提出用ファイル作成完了しました。submission.csvをダウンロードしてKaggleに登録ください.")
+    print("提出用ファイル作成完了しました。submission_llm.csvをダウンロードしてKaggleに登録ください.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fine-tune a language model.")
