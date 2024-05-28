@@ -1,74 +1,36 @@
 import pandas as pd
 import argparse
 
-def create_bert_input_csv(file_name_in, file_name_out, sentence):
-    # CSVファイルを読み込みます
-    df = pd.read_csv(file_name_in)
-    user_profile_df = pd.read_csv('rec-class/dataset/user_profile_data.csv')
-    metadata_df = pd.read_csv('rec-class/dataset/metadata.csv')
+def create_hybrid_submission(file_svd, file_cbf, alpha):
+    # CSVファイルの読み込み
+    submission_svd = pd.read_csv(file_svd)
+    submission_cbf = pd.read_csv(file_cbf)
 
-    # user_profile_data.csvを辞書に変換します（userIdからprofileへのマッピング）
-    user_profile_dict = user_profile_df.set_index('userId')['profile'].to_dict()
+    submission_cbf.rename(columns={'rating': 'rating_cbf'}, inplace=True)
+    submission_svd.rename(columns={'rating': 'rating_svd'}, inplace=True)
 
-    # metadata_all.csvを辞書に変換します（movieIdからtitleへのマッピング）
-    movie_title_dict = metadata_df.set_index('movieId')['title'].to_dict()
+    # userId_movieIdでデータを突き合わせる
+    merged_test_df = pd.merge(submission_cbf, submission_svd, on='userId_movieId')
 
-    # metadata_all.csvを辞書に変換します（movieIdからgenreへのマッピング）
-    movie_genre_dict = metadata_df.set_index('movieId')['genres'].to_dict()
+    # 重み付け和の計算
+    weighted_predictions = alpha * merged_test_df['rating_cbf'] + (1 - alpha) * merged_test_df['rating_svd']
 
-    # metadata_all.csvを辞書に変換します（movieIdからoverviewへのマッピング）
-    movie_overview_dict = metadata_df.set_index('movieId')['overview'].to_dict()
-
-    # 結果を保存するリスト
-    sentences = []
-    labels = []
-    pairs = []
-
-    # CSVの各行に対して処理を行います
-    for _, row in df.iterrows():
-        user_id = int(row['userId'])
-        movie_id = int(row['movieId'])
-        rating = row['rating']
-
-        # user_profile_data.csvから該当するprofileを取得します
-        profile = user_profile_dict.get(user_id, "")
-
-        # metadata_all.csvから該当するtitleを取得します
-        title = movie_title_dict.get(movie_id, "")
-
-        # metadata_all.csvから該当するgenreを取得します
-        genre = movie_genre_dict.get(movie_id, "")
-
-        # metadata_all.csvから該当するoverviewを取得します
-        overview = movie_overview_dict.get(movie_id, "")
-
-        # 文をフォーマットします
-        formatted_sentence = sentence.format(user_id=user_id, profile=profile, title=title, genre=genre, overview=overview)
-
-        # リストに追加します
-        sentences.append(formatted_sentence)
-        labels.append(rating)
-        pairs.append(f"{user_id}_{movie_id}")
-
-    # 新しいDataFrameに変換します
-    bert_df = pd.DataFrame({
-        'sentence': sentences,
-        'label': labels,
-        'userId_movieId': pairs
+    # 結果をDataFrameにまとめる
+    submission_hybrid = pd.DataFrame({
+        'userId_movieId': merged_test_df['userId_movieId'],
+        'rating': weighted_predictions
     })
 
-    # 新しいCSVファイルに保存します
-    bert_df.to_csv(file_name_out, index=False)
+    # submission_hybrid.csvとして保存
+    submission_hybrid.to_csv('rec-class/dataset/submission_hybrid.csv', index=False)
 
-    print(f"BERT input CSV created and saved to {file_name_out}")
+    print("提出用ファイル作成完了しました。submission_hybrid.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create BERT input CSV files.")
-    parser.add_argument("--sentence", type=str, required=True, help="Template sentence for BERT input.")
-    
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Create hybrid submission file.")
+    parser.add_argument("file_svd", type=str, help="Path to the SVD submission CSV file.")
+    parser.add_argument("file_cbf", type=str, help="Path to the CBF submission CSV file.")
+    parser.add_argument("--alpha", type=float, default=0.5, help="Weight for CBF predictions (default: 0.5)")
 
-    # 関数を呼び出して指定されたファイルを処理します
-    create_bert_input_csv('rec-class/dataset/training.csv', 'rec-class/dataset/training_bert.csv', args.sentence)
-    create_bert_input_csv('rec-class/dataset/test.csv', 'rec-class/dataset/test_bert.csv', args.sentence)
-    create_bert_input_csv('rec-class/dataset/validation.csv', 'rec-class/dataset/validation_bert.csv', args.sentence)
+    args = parser.parse_args()
+    create_hybrid_submission(args.file_svd, args.file_cbf, args.alpha)
