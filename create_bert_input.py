@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse
+import os
 
 def create_bert_input_csv(file_name_in, file_name_out, sentence):
     # CSVファイルを読み込みます
@@ -83,5 +84,11 @@ if __name__ == "__main__":
 
     # 関数を呼び出して指定されたファイルを処理します
     create_bert_input_csv('rec-class/dataset/training.csv', 'rec-class/dataset/training_bert.csv', args.sentence)
-    create_bert_input_csv('rec-class/dataset/test.csv', 'rec-class/dataset/test_bert.csv', args.sentence)
     create_bert_input_csv('rec-class/dataset/validation.csv', 'rec-class/dataset/validation_bert.csv', args.sentence)
+
+    test_file_path = '/content/rec-class/dataset/test.csv'
+
+    if not os.path.exists(test_file_path):
+        print("test.csv が見つからないため、テストデータのBERT用ファイル作成をスキップします。")
+    else:
+        create_bert_input_csv('rec-class/dataset/test.csv', 'rec-class/dataset/test_bert.csv', args.sentence)
