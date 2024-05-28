@@ -1,14 +1,18 @@
 import pandas as pd
 import argparse
+import string
 
 def check_history_format(history_df):
     expected_columns = ["userId", "movieId", "rating"]
     if set(expected_columns) != set(history_df.columns):
         raise ValueError("history.csvのカラム名が一致しません。期待されるカラム: ['userId', 'movieId', 'rating']")
-    
+
     user_counts = history_df['userId'].value_counts()
     if (user_counts < 4).any():
         raise ValueError("history.csvにおいて、4つ未満のデータしかないユーザが存在します。")
+
+    if len(history_df) > 1000:
+        raise ValueError("history.csvの行数が1000行を超えています。")
 
 def check_metadata_format(metadata_df):
     expected_columns = ["movieId", "title", "genres", "release_date", "runtime", "overview"]
@@ -19,9 +23,16 @@ def check_user_profile_data_format(user_profile_data_df, history_df):
     expected_columns = ["userId", "profile"]
     if set(expected_columns) != set(user_profile_data_df.columns):
         raise ValueError("user_profile_data.csvのカラム名が一致しません。期待されるカラム: ['userId', 'profile']")
-    
+
     if not set(history_df['userId']).issubset(set(user_profile_data_df['userId'])):
         raise ValueError("history.csvのすべてのuserIdがuser_profile_data.csvに含まれていません。")
+
+    if user_profile_data_df["profile"].str.len().max() > 300:
+        raise ValueError("user_profile_data.csvのプロファイルのテキストが300文字を超えています。")
+
+    invalid_profile = user_profile_data_df["profile"].apply(lambda x: any(char not in string.printable for char in x)).any()
+    if invalid_profile:
+        raise ValueError("user_profile_data.csvのプロファイルに英語以外の文字が含まれています。")
 
 def check_movie_ids_in_metadata(history_df, metadata_df):
     if not set(history_df["movieId"]).issubset(set(metadata_df["movieId"])):
