@@ -190,8 +190,8 @@ def main(epoch_num, model_name):
     rmse_original_scale = np.sqrt(mse_original_scale)
 
     # Display the results
-    print("MSE:", mse_original_scale)
     print("MAE:", mae_original_scale)
+    print("MSE:", mse_original_scale)
     print("RMSE:", rmse_original_scale)
 
     """# 7 テストデータの予測"""
