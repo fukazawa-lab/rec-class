@@ -60,7 +60,7 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
     print(f"検証データの予測結果をvalidation_predictions_{algo_name}.csvに保存しました。")
 
     """# 7 テストデータの予測"""
-    test_file_path = '/content/rec-class/dataset/test_bert.csv'
+    test_file_path = '/content/rec-class/dataset/test.csv'
     if not os.path.exists(test_file_path):
         print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
         return
