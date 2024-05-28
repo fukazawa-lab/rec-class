@@ -22,7 +22,7 @@ def create_hybrid_submission(file_svd, file_cbf, alpha):
     })
 
     # submission_hybrid.csvとして保存
-    submission_hybrid.to_csv('submission_hybrid.csv', index=False)
+    submission_hybrid.to_csv('rec-class/dataset/submission_hybrid.csv', index=False)
 
     print("提出用ファイル作成完了しました。submission_hybrid.csvをダウンロードしてKaggleに登録ください。")
 
