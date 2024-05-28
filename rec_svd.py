@@ -3,6 +3,8 @@ from surprise import Reader, Dataset, SVD, SVDpp, NMF, KNNBasic, KNNWithMeans, K
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 import argparse
+import os
+
 
 def get_algorithm(algo_name, **kwargs):
     if algo_name == 'SVD':
@@ -33,7 +35,6 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
     # データの読み込み
     training_data = pd.read_csv(training_file)
     validation_data = pd.read_csv(validation_file)
-    test_data = pd.read_csv(test_file)
 
     # モデルのトレーニング
     training_data = Dataset.load_from_df(training_data[['userId', 'movieId', 'rating']], reader)
@@ -62,11 +63,12 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
     """# 7 テストデータの予測"""
     test_file_path = '/content/rec-class/dataset/test.csv'
     if not os.path.exists(test_file_path):
-        print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
+        print("test.csv が見つからないため、テストデータの予測をスキップします。")
         return
 
     # テストデータの読み込み
-    test_df = pd.read_csv(test_file_path)
+    test_data = pd.read_csv(test_file)
+
 
     # テストデータに対する予測
     test_data = Dataset.load_from_df(test_data[['userId', 'movieId', 'rating']], reader)
