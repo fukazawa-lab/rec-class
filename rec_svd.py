@@ -59,6 +59,15 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
     validation_output.to_csv(f'rec-class/dataset/validation_predictions_{algo_name}.csv', index=False)
     print(f"検証データの予測結果をvalidation_predictions_{algo_name}.csvに保存しました。")
 
+    """# 7 テストデータの予測"""
+    test_file_path = '/content/rec-class/dataset/test_bert.csv'
+    if not os.path.exists(test_file_path):
+        print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
+        return
+
+    # テストデータの読み込み
+    test_df = pd.read_csv(test_file_path)
+
     # テストデータに対する予測
     test_data = Dataset.load_from_df(test_data[['userId', 'movieId', 'rating']], reader)
     test_set = test_data.build_full_trainset().build_testset()
