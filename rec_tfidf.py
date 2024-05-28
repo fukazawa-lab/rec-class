@@ -2,10 +2,11 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from math import sqrt
 import numpy as np
 import argparse
+import os
 
 def main(kmeans_flag, num_clusters):
     # 訓練データと検証データの読み込み
@@ -55,7 +56,12 @@ def main(kmeans_flag, num_clusters):
 
     # 検証セットでモデルを評価
     rmse_validation = sqrt(mean_squared_error(target_validation, predictions_validation))
-    print(f'Validation RMSE: {rmse_validation}')
+    mae_validation = mean_absolute_error(target_validation, predictions_validation)
+    mse_validation = mean_squared_error(target_validation, predictions_validation)
+    
+    print(f'MAE: {mae_validation}')
+    print(f'MSE: {mse_validation}')
+    print(f'RMSE: {rmse_validation}')
 
     # predictions_validationをCSVに出力
     validation_output = pd.read_csv('rec-class/dataset/validation.csv')[['userId', 'movieId']].copy()
@@ -73,11 +79,11 @@ def main(kmeans_flag, num_clusters):
     """# 7 テストデータの予測"""
     test_file_path = '/content/rec-class/dataset/test.csv'
     if not os.path.exists(test_file_path):
-        print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
+        print("test.csv が見つからないため、テストデータの予測をスキップします。")
         return
 
     # テストデータの読み込み
-    test_df = pd.read_csv(test_file_path)
+    test_original_data = pd.read_csv(test_file_path)
     
     # テストデータの'userId'をダミーエンコード
     test_data = pd.get_dummies(test_original_data, columns=['userId'], prefix='user')
