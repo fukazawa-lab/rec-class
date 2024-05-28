@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 import argparse
 
 def calculate_rmse(file_svd, file_cbf):
@@ -25,18 +25,26 @@ def calculate_rmse(file_svd, file_cbf):
     # αを0から1まで0.1刻みで変化させる
     alphas = np.arange(0, 1.1, 0.1)
 
-    # RMSEを格納するリスト
+    # RMSE, MAE, MSEを格納するリスト
     rmses = []
+    maes = []
+    mses = []
 
     # 各αに対して重みづけ和を計算し、RMSEを算出
     for alpha in alphas:
         # 重みづけ和の計算
         weighted_predictions = alpha * merged_df['rating_cbf'] + (1 - alpha) * merged_df['rating_svd']
 
-        # RMSEの計算
+        # RMSE, MAE, MSEの計算
         rmse = np.sqrt(mean_squared_error(true_ratings, weighted_predictions))
+        mae = mean_absolute_error(true_ratings, weighted_predictions)
+        mse = mean_squared_error(true_ratings, weighted_predictions)
+        
         rmses.append(rmse)
-        print(f"Alpha: {alpha:.1f}, RMSE: {rmse:.4f}")
+        maes.append(mae)
+        mses.append(mse)
+
+        print(f"Alpha: {alpha:.1f}, MAE: {mae:.4f}, MSE: {mse:.4f}, RMSE: {rmse:.4f}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate RMSE for different alpha values.")
