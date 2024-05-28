@@ -12,6 +12,7 @@ Original file is located at
 """
 import argparse
 import torch
+import os
 from transformers.trainer_utils import set_seed
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
