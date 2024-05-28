@@ -194,6 +194,13 @@ def main(epoch_num, model_name):
     print("RMSE:", rmse_original_scale)
 
     """# 7 テストデータの予測"""
+    test_file_path = '/content/rec-class/dataset/test_bert.csv'
+    if not os.path.exists(test_file_path):
+        print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
+        return
+
+    # テストデータの読み込み
+    test_df = pd.read_csv(test_file_path)
 
     # テストデータの読み込み
     test_df = pd.read_csv('/content/rec-class/dataset/test_bert.csv')
