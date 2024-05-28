@@ -70,9 +70,15 @@ def main(kmeans_flag, num_clusters):
     validation_output_final.to_csv('rec-class/dataset/validation_predictions_tfidf.csv', index=False)
     print("検証結果をvalidation_predictions_tfidf.csvに保存しました。")
 
-    # テストデータの読み込み
-    test_original_data = pd.read_csv('rec-class/dataset/test.csv')
+    """# 7 テストデータの予測"""
+    test_file_path = '/content/rec-class/dataset/test.csv'
+    if not os.path.exists(test_file_path):
+        print("test_bert.csv が見つからないため、テストデータの予測をスキップします。")
+        return
 
+    # テストデータの読み込み
+    test_df = pd.read_csv(test_file_path)
+    
     # テストデータの'userId'をダミーエンコード
     test_data = pd.get_dummies(test_original_data, columns=['userId'], prefix='user')
 
