@@ -1,10 +1,9 @@
 import pandas as pd
 from surprise import Reader, Dataset, SVD, SVDpp, NMF, KNNBasic, KNNWithMeans, KNNWithZScore, KNNBaseline, SlopeOne, CoClustering
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from math import sqrt
 import argparse
 import os
-
 
 def get_algorithm(algo_name, **kwargs):
     if algo_name == 'SVD':
@@ -48,9 +47,17 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
     validation_set = validation_data.build_full_trainset().build_testset()
     validation_predictions = model.test(validation_set)
 
-    # RMSEの計算
-    validation_rmse = sqrt(mean_squared_error([prediction.est for prediction in validation_predictions], [prediction.r_ui for prediction in validation_predictions]))
-    print(f"Validation RMSE: {validation_rmse}")
+    # RMSE, MAE, MSEの計算
+    true_ratings = [prediction.r_ui for prediction in validation_predictions]
+    predicted_ratings = [prediction.est for prediction in validation_predictions]
+    
+    validation_rmse = sqrt(mean_squared_error(true_ratings, predicted_ratings))
+    validation_mae = mean_absolute_error(true_ratings, predicted_ratings)
+    validation_mse = mean_squared_error(true_ratings, predicted_ratings)
+    
+    print(f"MAE: {validation_mae}")
+    print(f"MSE: {validation_mse}")
+    print(f"RMSE: {validation_rmse}")
 
     # 検証データの予測結果をDataFrameに変換
     validation_df = pd.DataFrame(validation_predictions, columns=['uid', 'iid', 'r_ui', 'est', 'details'])
@@ -68,7 +75,6 @@ def train_algo(algo_name, training_file, validation_file, test_file, epochs, n_f
 
     # テストデータの読み込み
     test_data = pd.read_csv(test_file)
-
 
     # テストデータに対する予測
     test_data = Dataset.load_from_df(test_data[['userId', 'movieId', 'rating']], reader)
