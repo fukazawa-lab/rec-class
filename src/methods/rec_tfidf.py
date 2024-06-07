@@ -37,8 +37,8 @@ def main(kmeans_flag, num_clusters, datafolder):
 
     # 訓練データと検証データの'description'にTF-IDF変換を適用
     tfidf_vectorizer = TfidfVectorizer(max_features=1000)
-    tfidf_matrix_train = tfidf_vectorizer.fit_transform(train_data['title'])
-    tfidf_matrix_validation = tfidf_vectorizer.transform(validation_data['title'])
+    tfidf_matrix_train = tfidf_vectorizer.fit_transform(train_data['description'])
+    tfidf_matrix_validation = tfidf_vectorizer.transform(validation_data['description'])
 
     # 訓練データと検証データのユーザープロファイルTF-IDFベクトルを取得
     user_embeddings_train = np.array([user_profile_tfidf_dict[user_id][0] for user_id in train_data['userId']])
@@ -94,7 +94,7 @@ def main(kmeans_flag, num_clusters, datafolder):
 
 
     # テストデータの読み込み
-    test_original_data = pd.read_csv(test_data_path)
+    test_original_data = pd.read_csv(test_file_path)
     
     # テストデータをメタデータと結合
     test_data = pd.merge(test_original_data, metadata, on='itemId', how='left')
