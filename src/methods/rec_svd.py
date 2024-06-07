@@ -85,7 +85,7 @@ def train_algo(algo_name,datafolder, epochs, n_factors, lr):
     test_df = test_df.rename(columns={'uid': 'userId', 'iid': 'movieId', 'r_ui': 'true_rating', 'est': 'rating'})
     test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['movieId'].astype(str)
     test_output = test_df[['userId_movieId', 'rating']]
-    test_output.to_csv(data_folder + f'submission_{algo_name}.csv', index=False)
+    test_output.to_csv(datafolder + f'submission_{algo_name}.csv', index=False)
     print(f"提出用ファイル作成完了しました。submission_{algo_name}.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
