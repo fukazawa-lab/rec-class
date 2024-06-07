@@ -31,6 +31,9 @@ def main(kmeans_flag, num_clusters, datafolder):
     # メタデータの読み込み
     metadata = pd.read_csv(datafolder+ "metadata.csv")
 
+    # descriptionカラムがNaNの場合、titleカラムの値をコピーする
+    metadata['description'] = metadata['description'].fillna(metadata['title'])
+
     # 訓練データと検証データをメタデータで結合
     train_data = pd.merge(train_data, metadata, on='itemId', how='left')
     validation_data = pd.merge(validation_data, metadata, on='itemId', how='left')
@@ -124,7 +127,7 @@ def main(kmeans_flag, num_clusters, datafolder):
 
     # 必要な列だけを抽出して出力
     output_data = submission_df[['userId_itemId', 'rating']]
-    output_data.to_csv('rec-class/dataset/submission_tfidf.csv', index=False)
+    output_data.to_csv(data_folder + 'submission_tfidf.csv', index=False)
     print("提出用ファイル作成完了しました。submission_tfidf.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
