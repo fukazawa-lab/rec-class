@@ -3,7 +3,7 @@ from collections import Counter
 import argparse
 import os
 
-def generate_user_profiles(data_folder):
+def generate_user_profiles(data_folder, cat_freq):
     # ファイルパスの設定
     trainingfile = os.path.join(data_folder, 'training.csv')
     metadatafile = os.path.join(data_folder, 'metadata.csv')
@@ -26,6 +26,7 @@ def generate_user_profiles(data_folder):
 
     # 結果を保存するリスト
     user_profiles = []
+    profile_created_count = 0
 
     # ユーザごとに処理を行います
     for _, row in user_df.iterrows():
@@ -39,8 +40,8 @@ def generate_user_profiles(data_folder):
             # 頻度をカウントします
             name_counter = Counter(profile_list)
 
-            # 頻度がx回以上のものを抽出します
-            frequent_names = [name for name, count in name_counter.items() if count >= 1]
+            # 頻度がcat_freq回以上のものを抽出します
+            frequent_names = [name for name, count in name_counter.items() if count >= cat_freq]
 
             # ユニークな要素に変換します
             unique_names = list(set(frequent_names))
@@ -48,7 +49,11 @@ def generate_user_profiles(data_folder):
             # コンマで連結します
             profile_summary = ', '.join(unique_names)
 
-            profile_summary = f"This person likes shopping genres such as {profile_summary}."
+            if profile_summary:
+                profile_summary = f"This person likes shopping genres such as {profile_summary}."
+                profile_created_count += 1
+            else:
+                profile_summary = "No valid profile information available."
         except (ValueError, SyntaxError, TypeError):
             # エラーが発生した場合、プロファイルサマリを空にします
             profile_summary = "No valid profile information available."
@@ -63,12 +68,17 @@ def generate_user_profiles(data_folder):
     user_profile_df = pd.DataFrame(user_profiles)
     user_profile_df.to_csv(userprofilefile, index=False)
 
+    # プロファイルが作成されたユーザ数と全ユーザ数を出力
+    total_users = len(user_df)
+    print(f"Total users: {total_users}")
+    print(f"Users with created profiles: {profile_created_count}")
+
     return user_profile_df
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ユーザープロファイルを生成します。")
     parser.add_argument("--data_folder", type=str, required=True, help="データフォルダのパス")
+    parser.add_argument("--cat_freq", type=int, required=True, help="頻度の閾値")
 
     args = parser.parse_args()
-    user_profile_df = generate_user_profiles(args.data_folder)
-    print(user_profile_df)
+    user_profile_df = generate_user_profiles(args.data_folder, args.cat_freq)
