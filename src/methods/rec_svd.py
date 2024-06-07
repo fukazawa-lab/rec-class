@@ -64,7 +64,7 @@ def train_algo(algo_name,datafolder, epochs, n_factors, lr):
     validation_df = validation_df.rename(columns={'uid': 'userId', 'iid': 'itemId', 'r_ui': 'true_rating', 'est': 'rating'})
     validation_df['userId_movieId'] = validation_df['userId'].astype(str) + '_' + validation_df['itemId'].astype(str)
     validation_output = validation_df[['userId_movieId', 'true_rating', 'rating']]
-    validation_output.to_csv(f'rec-class/dataset/validation_predictions_{algo_name}.csv', index=False)
+    validation_output.to_csv(datafolder+f'validation_predictions_{algo_name}.csv', index=False)
     print(f"検証データの予測結果をvalidation_predictions_{algo_name}.csvに保存しました。")
 
     test_file_path=datafolder+ 'test.csv'
