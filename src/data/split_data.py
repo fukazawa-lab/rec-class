@@ -2,9 +2,12 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import argparse
 
-def main(data_folder, historyfile, train_size):
+def main(data_folder, train_size):
     # history.csvを読み込む
-    df = pd.read_csv(historyfile)
+    df = pd.read_csv(data_folder + 'history.csv')
+
+    # 学習データのサンプル数を1000にするためのtrain_sizeを計算
+    train_size = train_size / len(df)
 
     # データをランダムに分割
     train_data, temp_data = train_test_split(df, train_size=train_size, random_state=42)
@@ -20,8 +23,7 @@ def main(data_folder, historyfile, train_size):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="データセットを分割して保存します。")
     parser.add_argument("--data_folder", type=str, required=True, help="データを保存するフォルダのパス")
-    parser.add_argument("--historyfile", type=str, required=True, help="history.csvファイルのパス")
     parser.add_argument("--train_size", type=float, required=True, help="学習データのサイズ (0.0より大きく1.0以下の値)")
 
     args = parser.parse_args()
-    main(args.data_folder, args.historyfile, args.train_size)
+    main(args.data_folder, args.train_size)
