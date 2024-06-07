@@ -1,4 +1,4 @@
-userId,movieId,rating
+userId,itemId,rating
 22,67,2.0
 10,52,4.0
 54,3,4.5
