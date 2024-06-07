@@ -3,9 +3,9 @@ import argparse
 import string
 
 def check_history_format(history_df):
-    expected_columns = ["userId", "movieId", "rating"]
+    expected_columns = ["userId", "itemId", "rating"]
     if set(expected_columns) != set(history_df.columns):
-        raise ValueError("history.csvのカラム名が一致しません。期待されるカラム: ['userId', 'movieId', 'rating']")
+        raise ValueError("history.csvのカラム名が一致しません。期待されるカラム: ['userId', 'itemId', 'rating']")
 
     user_counts = history_df['userId'].value_counts()
     if (user_counts < 4).any():
@@ -15,9 +15,9 @@ def check_history_format(history_df):
         raise ValueError("history.csvの行数が1000行を超えています。")
 
 def check_metadata_format(metadata_df):
-    expected_columns = ["movieId", "title", "genres", "release_date", "runtime", "overview"]
+    expected_columns = ["itemId", "title", "genres", "release_date", "runtime", "overview"]
     if set(expected_columns) != set(metadata_df.columns):
-        raise ValueError("metadata.csvのカラム名が一致しません。期待されるカラム: ['movieId', 'title', 'genres', 'release_date', 'runtime', 'overview']")
+        raise ValueError("metadata.csvのカラム名が一致しません。期待されるカラム: ['itemId', 'title', 'genres', 'release_date', 'runtime', 'overview']")
 
 def check_user_profile_data_format(user_profile_data_df, history_df):
     expected_columns = ["userId", "profile"]
@@ -34,9 +34,9 @@ def check_user_profile_data_format(user_profile_data_df, history_df):
     if invalid_profile:
         raise ValueError("user_profile_data.csvのプロファイルに英語以外の文字が含まれています。")
 
-def check_movie_ids_in_metadata(history_df, metadata_df):
-    if not set(history_df["movieId"]).issubset(set(metadata_df["movieId"])):
-        raise ValueError("history.csvのmovieIdがmetadata.csvにすべて含まれていません。")
+def check_item_ids_in_metadata(history_df, metadata_df):
+    if not set(history_df["itemId"]).issubset(set(metadata_df["itemId"])):
+        raise ValueError("history.csvのitemIdがmetadata.csvにすべて含まれていません。")
 
 def main(history_file, metadata_file, user_profile_data_file):
     # CSVファイルの読み込み
@@ -48,7 +48,7 @@ def main(history_file, metadata_file, user_profile_data_file):
     check_history_format(history_df)
     check_metadata_format(metadata_df)
     check_user_profile_data_format(user_profile_data_df, history_df)
-    check_movie_ids_in_metadata(history_df, metadata_df)
+    check_item_ids_in_metadata(history_df, metadata_df)
 
     print("すべてのフォーマットチェックが正常に完了しました。")
 
