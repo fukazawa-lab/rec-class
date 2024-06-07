@@ -36,8 +36,8 @@ def create_bert_input_csv(file_name_in, file_name_out, sentence, user_profile_fi
 
     # CSVの各行に対して処理を行います
     for _, row in df.iterrows():
-        user_id = int(row['userId'])
-        item_id = int(row['itemId'])
+        user_id = str(row['userId'])
+        item_id = str(row['itemId'])
         rating = row['rating']
 
         # user_profile_data.csvから該当するprofileを取得します
@@ -91,10 +91,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # 関数を呼び出して指定されたファイルを処理します
-    create_bert_input_csv(args.history_file_in, args.history_file_out, args.sentence, args.user_profile_file, args.metadata_file)
+    # # 関数を呼び出して指定されたファイルを処理します
+    # create_bert_input_csv(args.history_file_in, args.history_file_out, args.sentence, args.user_profile_file, args.metadata_file)
 
     if args.history_file_in is not None and args.history_file_out is not None:
         create_bert_input_csv(args.history_file_in, args.history_file_out, args.sentence, args.user_profile_file, args.metadata_file)
     else:
-        print("test.csv が見つからないため、テストデータのBERT用ファイル作成をスキップします。")
+        print("指定されたファイルが見つからないため、BERT用ファイル作成をスキップします。")
