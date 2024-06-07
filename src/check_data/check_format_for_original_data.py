@@ -17,7 +17,7 @@ def check_history_format(history_df):
 def check_metadata_format(metadata_df):
     expected_columns = ["itemId", "title", "genres", "release_date", "runtime", "overview"]
     if set(expected_columns) != set(metadata_df.columns):
-        raise ValueError("metadata.csvのカラム名が一致しません。期待されるカラム: ['itemId', 'title', 'genres', 'release_date', 'runtime', 'overview']")
+        raise ValueError("metadata.csvのカラム名が一致しません。期待されるカラム: ['itemId', 'title', 'category', 'description', 'option1', 'option2', 'option3']")
 
 def check_user_profile_data_format(user_profile_data_df, history_df):
     expected_columns = ["userId", "profile"]
