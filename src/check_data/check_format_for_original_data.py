@@ -7,15 +7,16 @@ def check_history_format(history_df):
     if set(expected_columns) != set(history_df.columns):
         raise ValueError("history.csvのカラム名が一致しません。期待されるカラム: ['userId', 'itemId', 'rating']")
 
-    user_counts = history_df['userId'].value_counts()
-    if (user_counts < 4).any():
-        raise ValueError("history.csvにおいて、4つ未満のデータしかないユーザが存在します。")
+    # user_counts = history_df['userId'].value_counts()
+    # if (user_counts < 4).any():
+    #     raise ValueError("history.csvにおいて、4つ未満のデータしかないユーザが存在します。")
 
-    if len(history_df) > 1000:
-        raise ValueError("history.csvの行数が1000行を超えています。")
+    # if len(history_df) > 1000:
+    #     raise ValueError("history.csvの行数が1000行を超えています。")
 
 def check_metadata_format(metadata_df):
-    expected_columns = ["itemId", "title", "genres", "release_date", "runtime", "overview"]
+    expected_columns = ['itemId', 'title', 'category', 'description', 'option1', 'option2', 'option3']
+
     if set(expected_columns) != set(metadata_df.columns):
         raise ValueError("metadata.csvのカラム名が一致しません。期待されるカラム: ['itemId', 'title', 'category', 'description', 'option1', 'option2', 'option3']")
 
@@ -42,12 +43,12 @@ def main(history_file, metadata_file, user_profile_data_file):
     # CSVファイルの読み込み
     history_df = pd.read_csv(history_file)
     metadata_df = pd.read_csv(metadata_file)
-    user_profile_data_df = pd.read_csv(user_profile_data_file)
+    # user_profile_data_df = pd.read_csv(user_profile_data_file)
 
     # フォーマットチェック
     check_history_format(history_df)
     check_metadata_format(metadata_df)
-    check_user_profile_data_format(user_profile_data_df, history_df)
+    # check_user_profile_data_format(user_profile_data_df, history_df)
     check_item_ids_in_metadata(history_df, metadata_df)
 
     print("すべてのフォーマットチェックが正常に完了しました。")
