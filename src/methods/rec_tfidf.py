@@ -8,33 +8,44 @@ import numpy as np
 import argparse
 import os
 
-def main(kmeans_flag, num_clusters):
+def main(kmeans_flag, num_clusters, train_data_path, validation_data_path, metadata_path, userprofiledata_path, test_data_path):
     # 訓練データと検証データの読み込み
-    train_data = pd.read_csv('rec-class/dataset/training.csv')
-    validation_data = pd.read_csv('rec-class/dataset/validation.csv')
+    train_data = pd.read_csv(train_data_path)
+    validation_data = pd.read_csv(validation_data_path)
 
-    # 訓練データと検証データの'userId'をダミーエンコード
-    train_data = pd.get_dummies(train_data, columns=['userId'], prefix='user')
-    validation_data = pd.get_dummies(validation_data, columns=['userId'], prefix='user')
+    # 'userId'列をstr型に変換
+    train_data['userId'] = train_data['userId'].astype(str)
+    validation_data['userId'] = validation_data['userId'].astype(str)
+
+    # ユーザープロファイルデータの読み込み
+    user_profiles = pd.read_csv(userprofiledata_path)
+    user_profiles['userId'] = user_profiles['userId'].astype(str)
+
+    # TF-IDFベクトル化
+    profile_tfidf_vectorizer = TfidfVectorizer(max_features=1000)
+    profile_tfidf_matrix = profile_tfidf_vectorizer.fit_transform(user_profiles['profile'])
+
+    # userIdをインデックスとしてユーザープロファイルTF-IDFベクトルを取得する辞書を作成
+    user_profile_tfidf_dict = {user_profiles.iloc[i]['userId']: profile_tfidf_matrix[i].toarray() for i in range(len(user_profiles))}
 
     # メタデータの読み込み
-    metadata = pd.read_csv('rec-class/dataset/metadata.csv')  # 実際のパスに置き換えてください
+    metadata = pd.read_csv(metadata_path)
 
     # 訓練データと検証データをメタデータで結合
-    train_data = pd.merge(train_data, metadata, on='movieId', how='left')
-    validation_data = pd.merge(validation_data, metadata, on='movieId', how='left')
+    train_data = pd.merge(train_data, metadata, on='itemId', how='left')
+    validation_data = pd.merge(validation_data, metadata, on='itemId', how='left')
 
-    # 訓練データと検証データの'movieText'にTF-IDF変換を適用
-    tfidf_vectorizer = TfidfVectorizer(max_features=1000)  # max_featuresパラメータを調整できます
-    tfidf_matrix_train = tfidf_vectorizer.fit_transform(train_data['overview'])
-    tfidf_matrix_validation = tfidf_vectorizer.transform(validation_data['overview'])
+    # 訓練データと検証データの'description'にTF-IDF変換を適用
+    tfidf_vectorizer = TfidfVectorizer(max_features=1000)
+    tfidf_matrix_train = tfidf_vectorizer.fit_transform(train_data['title'])
+    tfidf_matrix_validation = tfidf_vectorizer.transform(validation_data['title'])
 
-    # 訓練データと検証データにダミーエンコードされた'userId'列とTF-IDF変換された'movieText'を結合
-    user_columns = [col for col in train_data.columns if col.startswith('user_')]
-    user_embeddings_train = train_data[user_columns].values
+    # 訓練データと検証データのユーザープロファイルTF-IDFベクトルを取得
+    user_embeddings_train = np.array([user_profile_tfidf_dict[user_id][0] for user_id in train_data['userId']])
+    user_embeddings_validation = np.array([user_profile_tfidf_dict[user_id][0] for user_id in validation_data['userId']])
+
+    # features_trainの作成
     features_train = np.concatenate((user_embeddings_train, tfidf_matrix_train.toarray()), axis=1)
-
-    user_embeddings_validation = validation_data[user_columns].values
     features_validation = np.concatenate((user_embeddings_validation, tfidf_matrix_validation.toarray()), axis=1)
 
     # kmeans_flagがTrueの場合は次元削減のためにKMeansを使用
@@ -64,63 +75,62 @@ def main(kmeans_flag, num_clusters):
     print(f'RMSE: {rmse_validation}')
 
     # predictions_validationをCSVに出力
-    validation_output = pd.read_csv('rec-class/dataset/validation.csv')[['userId', 'movieId']].copy()
+    validation_output = validation_data[['userId', 'itemId']].copy()
     validation_output['true_rating'] = target_validation
     validation_output['rating'] = predictions_validation
 
-    # userIdとmovieIdを結合して新しい列userId_movieIdを作成
-    validation_output['userId_movieId'] = validation_output['userId'].astype(str) + '_' + validation_output['movieId'].astype(str)
+    # userIdとitemIdを結合して新しい列userId_itemIdを作成
+    validation_output['userId_itemId'] = validation_output['userId'].astype(str) + '_' + validation_output['itemId'].astype(str)
 
     # 必要な列だけを抽出して出力
-    validation_output_final = validation_output[['userId_movieId', 'true_rating', 'rating']]
+    validation_output_final = validation_output[['userId_itemId', 'true_rating', 'rating']]
     validation_output_final.to_csv('rec-class/dataset/validation_predictions_tfidf.csv', index=False)
     print("検証結果をvalidation_predictions_tfidf.csvに保存しました。")
 
-    """# 7 テストデータの予測"""
-    test_file_path = '/content/rec-class/dataset/test.csv'
-    if not os.path.exists(test_file_path):
-        print("test.csv が見つからないため、テストデータの予測をスキップします。")
-        return
+    if test_data_path:
+        # テストデータの読み込み
+        test_original_data = pd.read_csv(test_data_path)
+        
+        # テストデータをメタデータと結合
+        test_data = pd.merge(test_original_data, metadata, on='itemId', how='left')
 
-    # テストデータの読み込み
-    test_original_data = pd.read_csv(test_file_path)
-    
-    # テストデータの'userId'をダミーエンコード
-    test_data = pd.get_dummies(test_original_data, columns=['userId'], prefix='user')
+        # テストデータの'description'にTF-IDF変換を適用
+        tfidf_matrix_test = tfidf_vectorizer.transform(test_data['description'])
 
-    # テストデータをメタデータと結合
-    test_data = pd.merge(test_data, metadata, on='movieId', how='left')
+        # テストデータのユーザープロファイルTF-IDFベクトルを取得
+        user_embeddings_test = np.array([user_profile_tfidf_dict[user_id][0] for user_id in test_data['userId']])
 
-    # テストデータの'movieText'にTF-IDF変換を適用
-    tfidf_matrix_test = tfidf_vectorizer.transform(test_data['overview'])
+        # features_testの作成
+        features_test = np.concatenate((user_embeddings_test, tfidf_matrix_test.toarray()), axis=1)
 
-    # テストデータにダミーエンコードされた'userId'列とTF-IDF変換された'movieText'を結合
-    user_embeddings_test = test_data[user_columns].values
-    features_test = np.concatenate((user_embeddings_test, tfidf_matrix_test.toarray()), axis=1)
+        # kmeans_flagがTrueの場合はテストデータに次元削減を適用
+        if kmeans_flag:
+            features_test = kmeans.transform(features_test)
 
-    # kmeans_flagがTrueの場合はテストデータに次元削減を適用
-    if kmeans_flag:
-        features_test = kmeans.transform(features_test)
+        # テストセットでの予測
+        predictions = model.predict(features_test)
 
-    # テストセットでの予測
-    predictions = model.predict(features_test)
+        # テストデータと予測値を含むデータフレームを作成
+        submission_df = test_original_data[['userId', 'itemId']].copy()
+        submission_df['rating'] = predictions
 
-    # テストデータと予測値を含むデータフレームを作成
-    submission_df = test_original_data[['userId', 'movieId']].copy()
-    submission_df['rating'] = predictions
+        # userIdとitemIdを結合して新しい列userId_itemIdを作成
+        submission_df['userId_itemId'] = submission_df['userId'].astype(str) + '_' + submission_df['itemId'].astype(str)
 
-    # userIdとmovieIdを結合して新しい列userId_movieIdを作成
-    submission_df['userId_movieId'] = submission_df['userId'].astype(str) + '_' + submission_df['movieId'].astype(str)
-
-    # 必要な列だけを抽出して出力
-    output_data = submission_df[['userId_movieId', 'rating']]
-    output_data.to_csv('rec-class/dataset/submission_tfidf.csv', index=False)
-    print("提出用ファイル作成完了しました。submission_tfidf.csvをダウンロードしてKaggleに登録ください。")
+        # 必要な列だけを抽出して出力
+        output_data = submission_df[['userId_itemId', 'rating']]
+        output_data.to_csv('rec-class/dataset/submission_tfidf.csv', index=False)
+        print("提出用ファイル作成完了しました。submission_tfidf.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="レコメンデーションシステムのスクリプトを実行します。")
     parser.add_argument("--kmeans_flag", type=bool, default=False, help="次元削減のためにKMeansを適用するかどうか")
     parser.add_argument("--num_clusters", type=int, default=100, help="KMeansのクラスタ数")
+    parser.add_argument("--train_data_path", type=str, required=True, help="訓練データのCSVファイルへのパス")
+    parser.add_argument("--validation_data_path", type=str, required=True, help="検証データのCSVファイルへのパス")
+    parser.add_argument("--metadata_path", type=str, required=True, help="メタデータのCSVファイルへのパス")
+    parser.add_argument("--userprofiledata_path", type=str, required=True, help="ユーザープロファイルデータのCSVファイルへのパス")
+    parser.add_argument("--test_data_path", type=str, default=None, help="テストデータのCSVファイルへのパス")
 
     args = parser.parse_args()
-    main(args.kmeans_flag, args.num_clusters)
+    main(args.kmeans_flag, args.num_clusters, args.train_data_path, args.validation_data_path, args.metadata_path, args.userprofiledata_path, args.test_data_path)
