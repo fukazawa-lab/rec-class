@@ -1,7 +1,7 @@
 import pandas as pd
 import argparse
 
-def create_hybrid_submission(file_svd, file_cbf, alpha):
+def create_hybrid_submission(file_svd, file_cbf,data_folder, alpha):
     # CSVファイルの読み込み
     submission_svd = pd.read_csv(file_svd)
     submission_cbf = pd.read_csv(file_cbf)
@@ -22,15 +22,16 @@ def create_hybrid_submission(file_svd, file_cbf, alpha):
     })
 
     # submission_hybrid.csvとして保存
-    submission_hybrid.to_csv('rec-class/dataset/submission_hybrid.csv', index=False)
+    submission_hybrid.to_csv(data_folder+'submission_hybrid.csv', index=False)
 
-    print("提出用ファイル作成完了しました。submission_hybrid.csvをダウンロードしてKaggleに登録ください。")
+    print(f"提出用ファイル作成完了しました。{data_folder}submission_hybrid.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create hybrid submission file.")
     parser.add_argument("file_svd", type=str, help="Path to the SVD submission CSV file.")
     parser.add_argument("file_cbf", type=str, help="Path to the CBF submission CSV file.")
     parser.add_argument("--alpha", type=float, default=0.5, help="Weight for CBF predictions (default: 0.5)")
+    parser.add_argument("--data_folder", type=str, help="data folder")
 
     args = parser.parse_args()
-    create_hybrid_submission(args.file_svd, args.file_cbf, args.alpha)
+    create_hybrid_submission(args.file_svd, args.file_cbf,args.data_folder, args.alpha)
