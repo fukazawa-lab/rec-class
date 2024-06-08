@@ -2,11 +2,18 @@ import pandas as pd
 import argparse
 import os
 
-def create_bert_input_csv(file_name_in, file_name_out, sentence, user_profile_file, metadata_file):
+def create_bert_input_csv(file_name_in, file_name_out, sentence, data_folder):
+
     # CSVファイルを読み込みます
     df = pd.read_csv(file_name_in)
-    user_profile_df = pd.read_csv(user_profile_file)
-    metadata_df = pd.read_csv(metadata_file)
+    user_profile_df = pd.read_csv(data_folder + "user_profile_data.csv")
+    metadata_df = pd.read_csv(data_folder+ "metadata.csv")
+
+    df['userId'] = df['userId'].astype(str)
+    df['itemId'] = df['itemId'].astype(str)
+
+    user_profile_df['userId'] = user_profile_df['userId'].astype(str)
+    metadata_df['itemId'] = metadata_df['itemId'].astype(str)
 
     # user_profile_data.csvを辞書に変換します（userIdからprofileへのマッピング）
     user_profile_dict = user_profile_df.set_index('userId')['profile'].to_dict()
@@ -28,6 +35,7 @@ def create_bert_input_csv(file_name_in, file_name_out, sentence, user_profile_fi
 
     # metadata_all.csvを辞書に変換します（itemIdからdescriptionへのマッピング）
     item_option3_dict = metadata_df.set_index('itemId')['option3'].to_dict()
+    
 
     # 結果を保存するリスト
     sentences = []
@@ -84,17 +92,15 @@ def create_bert_input_csv(file_name_in, file_name_out, sentence, user_profile_fi
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create BERT input CSV files.")
     parser.add_argument("--sentence", type=str, required=True, help="Template sentence for BERT input.")
-    parser.add_argument("--user_profile_file", type=str, required=True, help="Path to the user profile data CSV file.")
-    parser.add_argument("--metadata_file", type=str, required=True, help="Path to the metadata CSV file.")
-    parser.add_argument("--history_file_in", type=str, required=True, help="Path to the input training CSV file.")
-    parser.add_argument("--history_file_out", type=str, required=True, help="Path to save the output training BERT CSV file.")
+    parser.add_argument("--data_folder", type=str, required=True, help="Path to the data folder.")
 
     args = parser.parse_args()
 
-    # # 関数を呼び出して指定されたファイルを処理します
-    # create_bert_input_csv(args.history_file_in, args.history_file_out, args.sentence, args.user_profile_file, args.metadata_file)
+    for file_name in ["training", "validation", "test"]:
+        history_file_in = os.path.join(args.data_folder, f"{file_name}.csv")
+        history_file_out = os.path.join(args.data_folder, f"{file_name}_bert.csv")
 
-    if args.history_file_in is not None and args.history_file_out is not None:
-        create_bert_input_csv(args.history_file_in, args.history_file_out, args.sentence, args.user_profile_file, args.metadata_file)
-    else:
-        print("指定されたファイルが見つからないため、BERT用ファイル作成をスキップします。")
+        if os.path.exists(history_file_in):
+            create_bert_input_csv(history_file_in, history_file_out, args.sentence, args.data_folder)
+        # else:
+        #     print(f"{file_name}.csv が見つかりません。スキップします。")
