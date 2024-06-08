@@ -69,7 +69,7 @@ def train_algo(algo_name,datafolder, epochs, n_factors, lr):
 
     test_file_path=datafolder+ 'test.csv'
     if not os.path.exists(test_file_path):
-        print("test.csv が見つからないため、テストデータの予測をスキップします。")
+        # print("test.csv が見つからないため、テストデータの予測をスキップします。")
         return
 
     # テストデータの読み込み
