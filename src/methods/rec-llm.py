@@ -88,16 +88,16 @@ def main(epoch_num, model_name, data_folder):
 
     # 予測結果をDataFrameに格納
     predictions_df = pd.DataFrame({
-        'userId_movieId': valid_df["userId_itemId"],
-        'label': valid_dataset["label"],
-        'predicted_value': predictions.predictions.flatten()
+        'userId_itemId': valid_df["userId_itemId"],
+        'true_rating': valid_dataset["label"],
+        'rating': predictions.predictions.flatten()
     })
 
     # 提出用ファイル作成
     predictions_df.to_csv(data_folder+"validation_predictions_llm.csv", index=False)
 
-    mse_original_scale = mean_squared_error(predictions_df['label'], predictions_df['predicted_value'])
-    mae_original_scale = mean_absolute_error(predictions_df['label'], predictions_df['predicted_value'])
+    mse_original_scale = mean_squared_error(predictions_df['true_rating'], predictions_df['rating'])
+    mae_original_scale = mean_absolute_error(predictions_df['true_rating'], predictions_df['rating'])
     rmse_original_scale = np.sqrt(mse_original_scale)
 
     # 結果表示
@@ -122,14 +122,14 @@ def main(epoch_num, model_name, data_folder):
 
     # テスト結果をDataFrameに格納
     test_predictions_df = pd.DataFrame({
-        'userId_movieId': test_df["userId_movieId"],
+        'userId_movieId': test_df["userId_itemId"],
         'rating': test_predictions.predictions.flatten()
     })
 
     # 提出用ファイル作成
-    test_predictions_df.to_csv("submission_llm.csv", index=False)
+    test_predictions_df.to_csv(data_folder+"submission_llm.csv", index=False)
 
-    print("提出用ファイル作成完了しました。submission_llm.csvをダウンロードしてKaggleに登録ください.")
+    print(f"提出用ファイル作成完了しました。{datafolder}submission_llm.csvをダウンロードしてKaggleに登録ください.")
 
 
 def compute_metrics_for_regression(eval_pred):
