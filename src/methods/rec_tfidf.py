@@ -129,7 +129,7 @@ def main(kmeans_flag, num_clusters, datafolder):
     # 必要な列だけを抽出して出力
     output_data = submission_df[['userId_movieId', 'rating']]
     output_data.to_csv(datafolder + 'submission_tfidf.csv', index=False)
-    print("提出用ファイル作成完了しました。submission_tfidf.csvをダウンロードしてKaggleに登録ください。")
+    print(f"提出用ファイル作成完了しました。{datafolder}submission_tfidf.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="レコメンデーションシステムのスクリプトを実行します。")
