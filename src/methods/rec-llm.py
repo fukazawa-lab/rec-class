@@ -106,29 +106,30 @@ def main(epoch_num, model_name, data_folder):
     print("RMSE:", rmse_original_scale)
 
     test_file=data_folder+ 'test_bert.csv'
+    if not os.path.exists(test_file):
+        # print("test.csv が見つからないため、テストデータの予測をスキップします。")
+        return
 
-    # テストデータの予測
-    if test_file:
-        test_df = pd.read_csv(test_file)
+    test_df = pd.read_csv(test_file)
 
-        test_dataset = Dataset.from_pandas(test_df)
-        encoded_test_dataset = test_dataset.map(
-            preprocess_text_classification,
-            remove_columns=test_dataset.column_names,
-        )
+    test_dataset = Dataset.from_pandas(test_df)
+    encoded_test_dataset = test_dataset.map(
+        preprocess_text_classification,
+        remove_columns=test_dataset.column_names,
+    )
 
-        test_predictions = trainer.predict(encoded_test_dataset)
+    test_predictions = trainer.predict(encoded_test_dataset)
 
-        # テスト結果をDataFrameに格納
-        test_predictions_df = pd.DataFrame({
-            'userId_movieId': test_df["userId_movieId"],
-            'rating': test_predictions.predictions.flatten()
-        })
+    # テスト結果をDataFrameに格納
+    test_predictions_df = pd.DataFrame({
+        'userId_movieId': test_df["userId_movieId"],
+        'rating': test_predictions.predictions.flatten()
+    })
 
-        # 提出用ファイル作成
-        test_predictions_df.to_csv("submission_llm.csv", index=False)
+    # 提出用ファイル作成
+    test_predictions_df.to_csv("submission_llm.csv", index=False)
 
-        print("提出用ファイル作成完了しました。submission_llm.csvをダウンロードしてKaggleに登録ください.")
+    print("提出用ファイル作成完了しました。submission_llm.csvをダウンロードしてKaggleに登録ください.")
 
 
 def compute_metrics_for_regression(eval_pred):
