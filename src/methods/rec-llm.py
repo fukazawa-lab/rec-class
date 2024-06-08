@@ -10,16 +10,19 @@ from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments, Trainer
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import numpy as np
+import logging
 
+# ロギングレベルを変更
+logging.basicConfig(level=logging.ERROR)
 
-def main(epoch_num, model_name, train_file, valid_file, test_file=None):
+def main(epoch_num, model_name, data_folder):
     # 乱数シードを42に固定
     set_seed(42)
     print("乱数シード設定完了")
 
     # CSVファイルからデータを読み込む
-    original_train_df = pd.read_csv(train_file)
-    valid_df = pd.read_csv(valid_file)
+    original_train_df = pd.read_csv(data_folder+ 'training_bert.csv')
+    valid_df = pd.read_csv(data_folder+ 'validation_bert.csv')
 
     # トークナイザを読み込む
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -65,6 +68,7 @@ def main(epoch_num, model_name, train_file, valid_file, test_file=None):
         metric_for_best_model="1/mse",  # 最良のモデルを決定する評価指標
         fp16=False,  # 修正: FP16を無効にする
         fp16_full_eval=False,  # 修正: FP16 full evalを無効にする
+        disable_tqdm=True,  # tqdmの進行状況バーを無効にする
     )
 
     trainer = Trainer(
@@ -84,13 +88,13 @@ def main(epoch_num, model_name, train_file, valid_file, test_file=None):
 
     # 予測結果をDataFrameに格納
     predictions_df = pd.DataFrame({
-        'userId_movieId': valid_df["userId_movieId"],
+        'userId_movieId': valid_df["userId_itemId"],
         'label': valid_dataset["label"],
         'predicted_value': predictions.predictions.flatten()
     })
 
     # 提出用ファイル作成
-    predictions_df.to_csv("validation_predictions_llm.csv", index=False)
+    predictions_df.to_csv(data_folder+"validation_predictions_llm.csv", index=False)
 
     mse_original_scale = mean_squared_error(predictions_df['label'], predictions_df['predicted_value'])
     mae_original_scale = mean_absolute_error(predictions_df['label'], predictions_df['predicted_value'])
@@ -100,6 +104,8 @@ def main(epoch_num, model_name, train_file, valid_file, test_file=None):
     print("MAE:", mae_original_scale)
     print("MSE:", mse_original_scale)
     print("RMSE:", rmse_original_scale)
+
+    test_file=data_folder+ 'test_bert.csv'
 
     # テストデータの予測
     if test_file:
@@ -138,11 +144,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fine-tune a language model.")
     parser.add_argument("--epoch_num", type=int, default=10, help="Number of epochs for training.")
     parser.add_argument("--model_name", type=str, default="bert-base-uncased", help="Model name for training.")
-    parser.add_argument("--train_file", type=str, required=True, help="Path to the training CSV file.")
-    parser.add_argument("--valid_file", type=str, required=True, help="Path to the validation CSV file.")
-    parser.add_argument("--test_file", type=str, help="Path to the test CSV file.")
+    parser.add_argument("--data_folder", type=str, required=True, help="Path to the training CSV file.")
 
     args = parser.parse_args()
 
-    main(args.epoch_num, args.model_name, args.train_file, args.valid_file, args.test_file)
-
+    main(args.epoch_num, args.model_name, args.data_folder)
