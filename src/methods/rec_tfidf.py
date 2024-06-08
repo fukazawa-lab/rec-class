@@ -92,7 +92,7 @@ def main(kmeans_flag, num_clusters, datafolder):
 
     test_file_path=datafolder+ 'test.csv'
     if not os.path.exists(test_file_path):
-        print("test.csv が見つからないため、テストデータの予測をスキップします。")
+        # print("test.csv が見つからないため、テストデータの予測をスキップします。")
         return
 
 
