@@ -12,7 +12,7 @@ def calculate_rmse(file_svd, file_cbf):
     validation_predictions_svd.rename(columns={'rating': 'rating_svd'}, inplace=True)
 
     # userId_movieIdでデータを突き合わせる
-    merged_df = pd.merge(validation_predictions_svd, validation_predictions_cbf, on='userId_movieId')
+    merged_df = pd.merge(validation_predictions_svd, validation_predictions_cbf, on='userId_itemId')
 
     # true_ratingのカラムが存在するかチェックし、存在しない場合はtrue_rating_xを使用
     if 'true_rating' in merged_df.columns:
