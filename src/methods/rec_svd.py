@@ -62,8 +62,8 @@ def train_algo(algo_name,datafolder, epochs, n_factors, lr):
     # 検証データの予測結果をDataFrameに変換
     validation_df = pd.DataFrame(validation_predictions, columns=['uid', 'iid', 'r_ui', 'est', 'details'])
     validation_df = validation_df.rename(columns={'uid': 'userId', 'iid': 'itemId', 'r_ui': 'true_rating', 'est': 'rating'})
-    validation_df['userId_movieId'] = validation_df['userId'].astype(str) + '_' + validation_df['itemId'].astype(str)
-    validation_output = validation_df[['userId_movieId', 'true_rating', 'rating']]
+    validation_df['userId_itemId'] = validation_df['userId'].astype(str) + '_' + validation_df['itemId'].astype(str)
+    validation_output = validation_df[['userId_itemId', 'true_rating', 'rating']]
     validation_output.to_csv(datafolder+f'validation_predictions_{algo_name}.csv', index=False)
     print(f"検証データの予測結果をvalidation_predictions_{algo_name}.csvに保存しました。")
 
@@ -82,11 +82,11 @@ def train_algo(algo_name,datafolder, epochs, n_factors, lr):
 
     # テストデータの予測結果をDataFrameに変換
     test_df = pd.DataFrame(test_predictions, columns=['uid', 'iid', 'r_ui', 'est', 'details'])
-    test_df = test_df.rename(columns={'uid': 'userId', 'iid': 'movieId', 'r_ui': 'true_rating', 'est': 'rating'})
-    test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['movieId'].astype(str)
+    test_df = test_df.rename(columns={'uid': 'userId', 'iid': 'itemId', 'r_ui': 'true_rating', 'est': 'rating'})
+    test_df['userId_movieId'] = test_df['userId'].astype(str) + '_' + test_df['itemId'].astype(str)
     test_output = test_df[['userId_movieId', 'rating']]
     test_output.to_csv(datafolder + f'submission_{algo_name}.csv', index=False)
-    print(f"提出用ファイル作成完了しました。submission_{algo_name}.csvをダウンロードしてKaggleに登録ください。")
+    print(f"提出用ファイル作成完了しました。{datafolder}submission_{algo_name}.csvをダウンロードしてKaggleに登録ください。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the recommendation system script.")
