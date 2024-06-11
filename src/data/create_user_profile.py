@@ -50,7 +50,7 @@ def generate_user_profiles(data_folder, cat_freq):
             profile_summary = ', '.join(unique_names)
 
             if profile_summary:
-                profile_summary = f"This person likes shopping genres such as {profile_summary}."
+                profile_summary = f"This person likes genres such as {profile_summary}."
                 profile_created_count += 1
             else:
                 profile_summary = "No valid profile information available."
