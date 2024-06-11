@@ -129,7 +129,7 @@ def main(epoch_num, model_name, data_folder):
     # 提出用ファイル作成
     test_predictions_df.to_csv(data_folder+"submission_llm.csv", index=False)
 
-    print(f"提出用ファイル作成完了しました。{datafolder}submission_llm.csvをダウンロードしてKaggleに登録ください.")
+    print(f"提出用ファイル作成完了しました。{data_folder}submission_llm.csvをダウンロードしてKaggleに登録ください.")
 
 
 def compute_metrics_for_regression(eval_pred):
