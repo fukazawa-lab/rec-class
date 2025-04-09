@@ -1,6 +1,8 @@
 import argparse
 import torch
 import os
+os.environ["WANDB_DISABLED"] = "true"  # ✅ ここでW&Bを無効にする
+
 from transformers.trainer_utils import set_seed
 from transformers import AutoTokenizer
 import pandas as pd
