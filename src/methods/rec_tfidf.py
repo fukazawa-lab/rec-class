@@ -38,6 +38,9 @@ def main(kmeans_flag, num_clusters, datafolder):
     train_data = pd.merge(train_data, metadata, on='itemId', how='left')
     validation_data = pd.merge(validation_data, metadata, on='itemId', how='left')
 
+    train_data['description'] = train_data['description'].fillna("")
+    validation_data['description'] = validation_data['description'].fillna("")
+    
     # 訓練データと検証データの'description'にTF-IDF変換を適用
     tfidf_vectorizer = TfidfVectorizer(max_features=1000)
     tfidf_matrix_train = tfidf_vectorizer.fit_transform(train_data['description'])
