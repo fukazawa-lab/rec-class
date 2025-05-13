@@ -65,7 +65,7 @@ def main(epoch_num, model_name, data_folder):
         num_train_epochs=epoch_num,  # エポック数
         save_strategy="epoch",  # チェックポイントの保存タイミング
         logging_strategy="epoch",  # ロギングのタイミング
-        evaluation_strategy="epoch",  # 検証セットによる評価のタイミング
+        eval_strategy="epoch",  # 検証セットによる評価のタイミング
         load_best_model_at_end=True,  # 訓練後に開発セットで最良のモデルをロード
         metric_for_best_model="1/mse",  # 最良のモデルを決定する評価指標
         fp16=False,  # 修正: FP16を無効にする
