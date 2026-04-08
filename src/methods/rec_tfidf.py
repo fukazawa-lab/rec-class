@@ -128,7 +128,7 @@ def main(kmeans_flag, num_clusters, datafolder):
     submission_df['rating'] = predictions
 
     # userIdとitemIdを結合して新しい列userId_itemIdを作成
-    submission_df['userId_movieId'] = submission_df['userId'].astype(str) + '_' + submission_df['itemId'].astype(str)
+    submission_df['userId_itemId'] = submission_df['userId'].astype(str) + '_' + submission_df['itemId'].astype(str)
 
     # 必要な列だけを抽出して出力
     output_data = submission_df[['userId_itemId', 'rating']]
