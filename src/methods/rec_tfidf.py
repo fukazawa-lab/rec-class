@@ -104,6 +104,7 @@ def main(kmeans_flag, num_clusters, datafolder):
     
     # テストデータをメタデータと結合
     test_data = pd.merge(test_original_data, metadata, on='itemId', how='left')
+    test_data['description'] = test_data['description'].fillna("")
 
     # テストデータの'description'にTF-IDF変換を適用
     tfidf_matrix_test = tfidf_vectorizer.transform(test_data['description'])
