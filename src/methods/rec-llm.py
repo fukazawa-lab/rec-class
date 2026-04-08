@@ -57,8 +57,8 @@ def main(epoch_num, model_name, data_folder):
     # 訓練の実行
     training_args = TrainingArguments(
         output_dir="output_wrime",  # 結果の保存フォルダ
-        per_device_train_batch_size=8,  # 訓練時のバッチサイズ
-        per_device_eval_batch_size=8,  # 評価時のバッチサイズ
+        per_device_train_batch_size=16,  # 訓練時のバッチサイズ
+        per_device_eval_batch_size=16,  # 評価時のバッチサイズ
         learning_rate=2e-5,  # 学習率
         lr_scheduler_type="linear",  # 学習率スケジューラの種類
         warmup_ratio=0.1,  # 学習率のウォームアップの長さを指定
@@ -68,9 +68,9 @@ def main(epoch_num, model_name, data_folder):
         eval_strategy="epoch",  # 検証セットによる評価のタイミング
         load_best_model_at_end=True,  # 訓練後に開発セットで最良のモデルをロード
         metric_for_best_model="1/mse",  # 最良のモデルを決定する評価指標
-        fp16=False,  # 修正: FP16を無効にする
+        fp16=True,  # 修正: FP16を無効にする
         fp16_full_eval=False,  # 修正: FP16 full evalを無効にする
-        disable_tqdm=True,  # tqdmの進行状況バーを無効にする
+        disable_tqdm=False,  # tqdmの進行状況バーを無効にする
     )
 
     trainer = Trainer(
