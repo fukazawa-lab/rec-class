@@ -124,7 +124,7 @@ def main(epoch_num, model_name, data_folder):
 
     # テスト結果をDataFrameに格納
     test_predictions_df = pd.DataFrame({
-        'userId_movieId': test_df["userId_itemId"],
+        'userId_itemId': test_df["userId_itemId"],
         'rating': test_predictions.predictions.flatten()
     })
 
