@@ -80,7 +80,7 @@ def calculate_rmse(file_svd, file_cbf, datafolder):
     submission_final = submission_merged[['userId_itemId', 'rating']]
 
     # 保存
-    submission_final.to_csv('submission_hybrid.csv', index=False)
+    submission_final.to_csv(data_folder+'submission_hybrid.csv', index=False)
     print("submission_hybrid.csv を保存しました。")
 
 if __name__ == "__main__":
