@@ -56,8 +56,8 @@ def calculate_rmse(file_svd, file_cbf, datafolder):
         return
 
     # 入力ファイル名からsubmission用ファイル名を作成
-    submission_svd_file = file_svd.replace('test_predictions_', 'submission_')
-    submission_cbf_file = file_cbf.replace('test_predictions_', 'submission_')
+    submission_svd_file = file_svd.replace('validation_predictions_', 'submission_')
+    submission_cbf_file = file_cbf.replace('validation_predictions_', 'submission_')
 
     if not os.path.exists(submission_svd_file) or not os.path.exists(submission_cbf_file):
         print("submission用ファイルが見つかりません。")
@@ -80,8 +80,8 @@ def calculate_rmse(file_svd, file_cbf, datafolder):
     submission_final = submission_merged[['userId_itemId', 'rating']]
 
     # 保存
-    submission_final.to_csv(data_folder+'submission_hybrid.csv', index=False)
-    print("submission_hybrid.csv を保存しました。")
+    submission_final.to_csv(datafolder+'submission_hybrid.csv', index=False)
+    print("/content/rec-class/dataset/kaggle/submission_hybrid.csv を保存しました。")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate RMSE for different alpha values and create hybrid submission.")
