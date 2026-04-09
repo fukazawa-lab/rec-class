@@ -56,8 +56,8 @@ def calculate_rmse(file_svd, file_cbf, datafolder):
         return
 
     # 入力ファイル名からsubmission用ファイル名を作成
-    submission_svd_file = file_svd.replace('validation_predictions_', 'submission_')
-    submission_cbf_file = file_cbf.replace('validation_predictions_', 'submission_')
+    submission_svd_file = file_svd.replace('test_predictions_', 'submission_')
+    submission_cbf_file = file_cbf.replace('test_predictions_', 'submission_')
 
     if not os.path.exists(submission_svd_file) or not os.path.exists(submission_cbf_file):
         print("submission用ファイルが見つかりません。")
